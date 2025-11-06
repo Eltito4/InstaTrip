@@ -9,6 +9,8 @@ from openai import OpenAI
 import json
 from pathlib import Path
 from dotenv import load_dotenv
+from urllib.parse import quote
+from datetime import datetime, timedelta
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -19,6 +21,121 @@ CORS(app)
 # Inicializar clientes de IA
 anthropic_client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def generate_booking_links(itinerary):
+    """Genera links automáticos a buscadores de vuelos, hoteles y actividades"""
+
+    destination = itinerary.get('destination', '')
+    city = itinerary.get('city', destination)  # Ciudad específica
+    country = itinerary.get('country', '')
+    airport_code = itinerary.get('airport_code', '')  # Código IATA si está disponible
+
+    # Calcular fechas aproximadas (ejemplo: viaje en 2 meses desde hoy)
+    start_date = datetime.now() + timedelta(days=60)
+    duration_str = itinerary.get('duration', '5 días')
+    duration_days = int(re.search(r'\d+', duration_str).group()) if re.search(r'\d+', duration_str) else 5
+    end_date = start_date + timedelta(days=duration_days)
+
+    # Formatear fechas
+    start_str = start_date.strftime('%Y-%m-%d')
+    end_str = end_date.strftime('%Y-%m-%d')
+    checkin = start_date.strftime('%Y-%m-%d')
+    checkout = end_date.strftime('%Y-%m-%d')
+
+    links = {
+        'flights': [],
+        'hotels': [],
+        'activities': []
+    }
+
+    # === VUELOS ===
+    destination_encoded = quote(destination)
+
+    # Google Flights (si tenemos código de aeropuerto)
+    if airport_code:
+        google_flights = f"https://www.google.com/travel/flights?q=flights%20to%20{airport_code}%20on%20{start_str}%20returning%20{end_str}"
+    else:
+        google_flights = f"https://www.google.com/travel/flights?q=flights%20to%20{destination_encoded}"
+
+    links['flights'].append({
+        'name': 'Google Flights',
+        'url': google_flights,
+        'description': 'Compara precios de múltiples aerolíneas'
+    })
+
+    # Skyscanner
+    skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{airport_code if airport_code else destination_encoded}/{start_str}/{end_str}/"
+    links['flights'].append({
+        'name': 'Skyscanner',
+        'url': skyscanner,
+        'description': 'Encuentra las mejores ofertas'
+    })
+
+    # === HOTELES ===
+    city_encoded = quote(city)
+
+    # Booking.com
+    booking = f"https://www.booking.com/searchresults.es.html?ss={city_encoded}&checkin={checkin}&checkout={checkout}&group_adults=2&no_rooms=1"
+    links['hotels'].append({
+        'name': 'Booking.com',
+        'url': booking,
+        'description': 'Miles de hoteles y apartamentos'
+    })
+
+    # Airbnb
+    airbnb = f"https://www.airbnb.es/s/{city_encoded}/homes?checkin={checkin}&checkout={checkout}&adults=2"
+    links['hotels'].append({
+        'name': 'Airbnb',
+        'url': airbnb,
+        'description': 'Alojamientos únicos y experiencias locales'
+    })
+
+    # Hotels.com
+    hotelscom = f"https://es.hotels.com/search.do?q-destination={city_encoded}&q-check-in={checkin}&q-check-out={checkout}&q-rooms=1"
+    links['hotels'].append({
+        'name': 'Hotels.com',
+        'url': hotelscom,
+        'description': 'Recompensas por reservas'
+    })
+
+    # === ACTIVIDADES Y ENTRADAS ===
+
+    # GetYourGuide para el destino general
+    getyourguide = f"https://www.getyourguide.es/s/?q={destination_encoded}"
+    links['activities'].append({
+        'name': f'Tours y actividades en {destination}',
+        'url': getyourguide,
+        'provider': 'GetYourGuide',
+        'description': 'Reserva tours, entradas y experiencias'
+    })
+
+    # Civitatis
+    civitatis_city = city.lower().replace(' ', '-')
+    civitatis = f"https://www.civitatis.com/es/{civitatis_city}/"
+    links['activities'].append({
+        'name': f'Excursiones en {city}',
+        'url': civitatis,
+        'provider': 'Civitatis',
+        'description': 'Free tours y visitas guiadas'
+    })
+
+    # Links específicos para cada lugar mencionado
+    places = itinerary.get('places', [])
+    for place in places[:3]:  # Limitar a los 3 primeros lugares
+        place_name = place.get('name', '')
+        if place_name:
+            place_encoded = quote(f"{place_name} {city}")
+
+            # GetYourGuide para el lugar específico
+            place_link = f"https://www.getyourguide.es/s/?q={place_encoded}"
+            links['activities'].append({
+                'name': place_name,
+                'url': place_link,
+                'provider': 'GetYourGuide',
+                'description': f'Entradas y tours para {place_name}'
+            })
+
+    return links
 
 def extract_video_info(url):
     """Extrae información básica del URL del video"""
@@ -140,6 +257,9 @@ Genera un JSON con la siguiente estructura EXACTA (sin texto adicional, solo el 
 
 {{
   "destination": "Nombre del destino mencionado en el video",
+  "city": "Ciudad principal del destino",
+  "country": "País",
+  "airport_code": "Código IATA del aeropuerto principal (ej: BCN, MAD, NYC) - déjalo vacío si no lo sabes",
   "description": "Breve descripción basada en lo que se dice en el video (1-2 líneas)",
   "duration": "X días",
   "budget": "€X - €Y por persona (orientativo)",
@@ -277,6 +397,11 @@ def analyze_video():
 
         # PASO 3: Generar itinerario con Claude Haiku basado en transcripción REAL
         itinerary = generate_itinerary_with_ai(video_transcript, video_info)
+
+        # PASO 4: Generar links automáticos a buscadores de vuelos, hoteles y actividades
+        print(f"🔗 Generando links a buscadores de vuelos, hoteles y actividades...")
+        booking_links = generate_booking_links(itinerary)
+        itinerary['booking_links'] = booking_links
 
         # Limpiar archivo temporal
         if audio_path and os.path.exists(audio_path):

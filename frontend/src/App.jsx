@@ -235,6 +235,114 @@ export default function App() {
               </div>
             </div>
 
+            {/* Booking Links */}
+            {itinerary.booking_links && (
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-lg p-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  ✈️ Reserva tu Viaje
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Haz clic en los enlaces para comparar precios y reservar
+                </p>
+
+                {/* Vuelos */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <span>✈️</span> Vuelos
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {itinerary.booking_links.flights.map((flight, index) => (
+                      <a
+                        key={index}
+                        href={flight.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-200 hover:border-indigo-500"
+                      >
+                        <div className="flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                          <span className="text-xl">🛫</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">{flight.name}</p>
+                          <p className="text-xs text-gray-600">{flight.description}</p>
+                        </div>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hoteles */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <span>🏨</span> Hoteles y Alojamiento
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {itinerary.booking_links.hotels.map((hotel, index) => (
+                      <a
+                        key={index}
+                        href={hotel.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-200 hover:border-green-500"
+                      >
+                        <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <span className="text-xl">🏠</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900 text-sm">{hotel.name}</p>
+                          <p className="text-xs text-gray-600">{hotel.description}</p>
+                        </div>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actividades y Entradas */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <span>🎫</span> Actividades y Entradas
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {itinerary.booking_links.activities.map((activity, index) => (
+                      <a
+                        key={index}
+                        href={activity.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-200 hover:border-purple-500"
+                      >
+                        <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                          <span className="text-xl">🎯</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900 text-sm">{activity.name}</p>
+                          <p className="text-xs text-gray-600">{activity.description}</p>
+                          {activity.provider && (
+                            <p className="text-xs text-purple-600 mt-1">via {activity.provider}</p>
+                          )}
+                        </div>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Tip:</strong> Te recomendamos comparar precios en varios buscadores antes de reservar. Los links se abren en pestañas nuevas.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex gap-4 justify-center">
               <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold transition-colors">
