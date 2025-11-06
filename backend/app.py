@@ -8,6 +8,10 @@ import yt_dlp
 from openai import OpenAI
 import json
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
