@@ -179,9 +179,14 @@ export default function App() {
 
             {/* Daily Itinerary */}
             <div className="bg-white rounded-xl shadow-lg p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 Itinerario Día a Día
               </h3>
+              {itinerary.note && (
+                <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+                  <p className="text-sm text-blue-800">{itinerary.note}</p>
+                </div>
+              )}
               <div className="space-y-6">
                 {itinerary.days.map((day, index) => (
                   <div key={index} className="border-l-4 border-indigo-600 pl-6 pb-6">

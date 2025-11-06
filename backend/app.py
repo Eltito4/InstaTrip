@@ -110,13 +110,31 @@ TRANSCRIPCIÓN DEL VIDEO (diálogos y narración REALES extraídos del video):
 {video_transcript}
 ---
 
-Basándote ÚNICAMENTE en lo que se menciona en la transcripción del video (lugares, actividades, recomendaciones), genera un itinerario de viaje detallado.
+Basándote ÚNICAMENTE en lo que se menciona en la transcripción del video (lugares, actividades, recomendaciones), genera un itinerario de viaje detallado y REALISTA.
 
-IMPORTANTE:
-- Identifica el destino mencionado en el video
-- Usa las actividades y lugares específicos que se mencionan en el audio
-- Si no se menciona un destino claro, intenta inferirlo del contexto
-- Incluye solo información relevante al contenido del video
+REGLAS IMPORTANTES PARA DÍAS:
+- Los días se cuentan por DÍAS NATURALES (calendario), NO por bloques de actividades
+- Si alguien llega un viernes a las 18:00, ese viernes ES el Día 1 (incluye vuelo + actividad nocturna si hay)
+- El sábado siguiente ES el Día 2 (día completo)
+- El domingo ES el Día 3, y así sucesivamente
+- NO dividas un mismo día natural en dos días diferentes
+
+REGLAS IMPORTANTES PARA HORARIOS:
+- Usa horarios REALISTAS y LÓGICOS según cada actividad:
+  * Desayuno: entre 8:00-10:00
+  * Actividades matutinas: 9:00-13:00
+  * Comida: 13:00-15:00
+  * Actividades tarde: 16:00-19:00
+  * Cena: 20:00-22:00
+  * Actividades nocturnas: 22:00-01:00
+- NO uses horarios equiespaciados (8:00, 10:00, 12:00, 14:00...)
+- Los horarios deben tener SENTIDO cronológico y dejar tiempo entre actividades
+- Varía los horarios según el tipo de actividad (museo vs playa vs restaurante)
+
+ESTRUCTURA DEL ITINERARIO:
+- Día 1: Si incluye llegada/vuelo, pon la hora de llegada estimada y solo actividades viables DESPUÉS de llegar
+- Días intermedios: Días completos de actividades (mañana, tarde, noche)
+- Último día: Si incluye vuelo de vuelta, termina las actividades ANTES de la hora de salida
 
 Genera un JSON con la siguiente estructura EXACTA (sin texto adicional, solo el JSON):
 
@@ -124,16 +142,46 @@ Genera un JSON con la siguiente estructura EXACTA (sin texto adicional, solo el 
   "destination": "Nombre del destino mencionado en el video",
   "description": "Breve descripción basada en lo que se dice en el video (1-2 líneas)",
   "duration": "X días",
-  "budget": "€X - €Y por persona",
+  "budget": "€X - €Y por persona (orientativo)",
   "best_time": "Mejor época para visitar",
   "days": [
     {{
-      "title": "Día 1: Título descriptivo",
+      "title": "Día 1: Llegada a [Ciudad] (Viernes)" // Ejemplo: incluir día de la semana si es relevante
       "activities": [
         {{
-          "time": "09:00",
-          "activity": "Descripción de la actividad mencionada en el video",
-          "location": "Lugar específico mencionado"
+          "time": "18:00",
+          "activity": "Llegada al aeropuerto y traslado al hotel (vuelo incluido)",
+          "location": "Aeropuerto Internacional"
+        }},
+        {{
+          "time": "21:00",
+          "activity": "Cena en restaurante local y primer paseo nocturno",
+          "location": "Centro histórico"
+        }}
+      ]
+    }},
+    {{
+      "title": "Día 2: [Descripción] (Sábado)" // Día completo
+      "activities": [
+        {{
+          "time": "09:30",
+          "activity": "Desayuno y visita guiada matinal",
+          "location": "Plaza principal"
+        }},
+        {{
+          "time": "13:30",
+          "activity": "Comida tradicional",
+          "location": "Restaurante recomendado en el video"
+        }},
+        {{
+          "time": "16:00",
+          "activity": "Tarde libre en la playa/museo/actividad",
+          "location": "Zona costera"
+        }},
+        {{
+          "time": "20:30",
+          "activity": "Cena con vistas y experiencia nocturna",
+          "location": "Mirador mencionado"
         }}
       ]
     }}
@@ -144,10 +192,19 @@ Genera un JSON con la siguiente estructura EXACTA (sin texto adicional, solo el 
       "description": "Descripción breve",
       "tip": "Consejo útil basado en el contenido del video"
     }}
-  ]
+  ],
+  "note": "⏰ Los horarios son orientativos y pueden ajustarse según tus preferencias y disponibilidad de cada lugar."
 }}
 
-Incluye 4-5 días de itinerario con 3-4 actividades por día, y lista 4-6 lugares destacados MENCIONADOS EN EL VIDEO."""
+IMPORTANTE:
+- Identifica el destino mencionado en el video
+- Usa las actividades y lugares específicos que se mencionan en el audio
+- Si no se menciona un destino claro, intenta inferirlo del contexto
+- Incluye solo información relevante al contenido del video
+- Incluye 4-5 días de itinerario con 3-5 actividades por día
+- Lista 4-6 lugares destacados MENCIONADOS EN EL VIDEO
+- Los horarios deben ser REALISTAS y con SENTIDO (desayuno por la mañana, cena por la noche, etc.)
+- Respeta los DÍAS NATURALES (un viernes es un día, el sábado siguiente es otro día distinto)"""
 
     try:
         # Usar Claude Haiku - mucho más económico (~20x más barato que Sonnet 4)
