@@ -112,7 +112,7 @@ export default function App() {
               disabled={loading}
             />
             <button
-              onClick={analyzeVideo}
+              onClick={() => analyzeVideo()}
               disabled={loading}
               className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition-colors flex items-center gap-2"
             >
