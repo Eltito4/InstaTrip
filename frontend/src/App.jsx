@@ -7,7 +7,7 @@ export default function App() {
   const [itinerary, setItinerary] = useState(null);
   const [error, setError] = useState('');
 
-  // Detectar si la app se abrió desde Web Share Target
+  // Detectar si la app se abrió desde Web Share Target (PWA)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sharedUrl = params.get('url') || params.get('text');
@@ -25,19 +25,11 @@ export default function App() {
         if (match) cleanUrl = match[1];
       }
 
+      // Solo prellenar el campo, usuario debe hacer clic en el botón
       setVideoUrl(cleanUrl);
 
       // Limpiar parámetros de la URL del navegador
       window.history.replaceState({}, document.title, '/');
-
-      // Auto-analizar si es una URL válida
-      if (cleanUrl.includes('tiktok.com') || cleanUrl.includes('instagram.com')) {
-        // Pequeño delay para que el usuario vea que se cargó
-        setTimeout(() => {
-          const tempUrl = cleanUrl;
-          analyzeVideo(tempUrl);
-        }, 500);
-      }
     }
   }, []);
 
