@@ -308,29 +308,45 @@ export default function App() {
                   <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <span>🎫</span> Actividades y Entradas
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-3">
                     {itinerary.booking_links.activities.map((activity, index) => (
-                      <a
-                        key={index}
-                        href={activity.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-200 hover:border-purple-500"
-                      >
-                        <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                          <span className="text-xl">🎯</span>
+                      <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span className="text-xl">{activity.type === 'specific' ? '🏛️' : '🎯'}</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900">{activity.name}</p>
+                            <p className="text-xs text-gray-600 mb-2">{activity.description}</p>
+                            <div className="flex gap-2">
+                              <a
+                                href={activity.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium hover:bg-purple-200 transition-colors"
+                              >
+                                <span>Tours</span>
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </a>
+                              {activity.url_official && (
+                                <a
+                                  href={activity.url_official}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition-colors"
+                                >
+                                  <span>Web oficial</span>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                  </svg>
+                                </a>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-900 text-sm">{activity.name}</p>
-                          <p className="text-xs text-gray-600">{activity.description}</p>
-                          {activity.provider && (
-                            <p className="text-xs text-purple-600 mt-1">via {activity.provider}</p>
-                          )}
-                        </div>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </a>
+                      </div>
                     ))}
                   </div>
                 </div>

@@ -27,20 +27,10 @@ def generate_booking_links(itinerary):
 
     destination = itinerary.get('destination', '')
     city = itinerary.get('city', destination)  # Ciudad específica
-    country = itinerary.get('country', '')
-    airport_code = itinerary.get('airport_code', '')  # Código IATA si está disponible
 
-    # Calcular fechas aproximadas (ejemplo: viaje en 2 meses desde hoy)
-    start_date = datetime.now() + timedelta(days=60)
-    duration_str = itinerary.get('duration', '5 días')
-    duration_days = int(re.search(r'\d+', duration_str).group()) if re.search(r'\d+', duration_str) else 5
-    end_date = start_date + timedelta(days=duration_days)
-
-    # Formatear fechas
-    start_str = start_date.strftime('%Y-%m-%d')
-    end_str = end_date.strftime('%Y-%m-%d')
-    checkin = start_date.strftime('%Y-%m-%d')
-    checkout = end_date.strftime('%Y-%m-%d')
+    # Si no hay ciudad, usar el destino
+    if not city:
+        city = destination
 
     links = {
         'flights': [],
@@ -49,89 +39,93 @@ def generate_booking_links(itinerary):
     }
 
     # === VUELOS ===
-    destination_encoded = quote(destination)
+    # Links sin fechas - usuario elige en el buscador
+    destination_clean = destination.replace(',', '').strip()
 
-    # Google Flights (si tenemos código de aeropuerto)
-    if airport_code:
-        google_flights = f"https://www.google.com/travel/flights?q=flights%20to%20{airport_code}%20on%20{start_str}%20returning%20{end_str}"
-    else:
-        google_flights = f"https://www.google.com/travel/flights?q=flights%20to%20{destination_encoded}"
-
+    # Google Flights - búsqueda abierta
+    google_flights = f"https://www.google.com/travel/flights?q=flights%20to%20{quote(destination_clean)}"
     links['flights'].append({
         'name': 'Google Flights',
         'url': google_flights,
-        'description': 'Compara precios de múltiples aerolíneas'
+        'description': 'Compara precios de múltiples aerolíneas - Elige tus fechas'
     })
 
-    # Skyscanner
-    skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{airport_code if airport_code else destination_encoded}/{start_str}/{end_str}/"
+    # Skyscanner - búsqueda abierta
+    skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{quote(destination_clean)}/"
     links['flights'].append({
         'name': 'Skyscanner',
         'url': skyscanner,
-        'description': 'Encuentra las mejores ofertas'
+        'description': 'Encuentra las mejores ofertas - Elige tus fechas'
     })
 
     # === HOTELES ===
-    city_encoded = quote(city)
+    city_clean = city.replace(',', '').strip()
 
-    # Booking.com
-    booking = f"https://www.booking.com/searchresults.es.html?ss={city_encoded}&checkin={checkin}&checkout={checkout}&group_adults=2&no_rooms=1"
+    # Booking.com - búsqueda abierta
+    booking = f"https://www.booking.com/searchresults.es.html?ss={quote(city_clean)}"
     links['hotels'].append({
         'name': 'Booking.com',
         'url': booking,
-        'description': 'Miles de hoteles y apartamentos'
+        'description': 'Miles de hoteles - Selecciona tus fechas'
     })
 
-    # Airbnb
-    airbnb = f"https://www.airbnb.es/s/{city_encoded}/homes?checkin={checkin}&checkout={checkout}&adults=2"
+    # Airbnb - búsqueda abierta
+    airbnb = f"https://www.airbnb.es/s/{quote(city_clean)}/homes"
     links['hotels'].append({
         'name': 'Airbnb',
         'url': airbnb,
-        'description': 'Alojamientos únicos y experiencias locales'
+        'description': 'Alojamientos únicos - Elige tus fechas'
     })
 
-    # Hotels.com
-    hotelscom = f"https://es.hotels.com/search.do?q-destination={city_encoded}&q-check-in={checkin}&q-check-out={checkout}&q-rooms=1"
+    # Hotels.com - búsqueda abierta
+    hotelscom = f"https://es.hotels.com/search.do?q-destination={quote(city_clean)}"
     links['hotels'].append({
         'name': 'Hotels.com',
         'url': hotelscom,
-        'description': 'Recompensas por reservas'
+        'description': 'Recompensas por reservas - Selecciona fechas'
     })
 
     # === ACTIVIDADES Y ENTRADAS ===
 
     # GetYourGuide para el destino general
-    getyourguide = f"https://www.getyourguide.es/s/?q={destination_encoded}"
+    getyourguide = f"https://www.getyourguide.es/s/?q={quote(destination_clean)}"
     links['activities'].append({
-        'name': f'Tours y actividades en {destination}',
+        'name': f'Tours en {destination}',
         'url': getyourguide,
         'provider': 'GetYourGuide',
-        'description': 'Reserva tours, entradas y experiencias'
+        'type': 'general',
+        'description': 'Tours, entradas y experiencias'
     })
 
     # Civitatis
-    civitatis_city = city.lower().replace(' ', '-')
+    civitatis_city = city_clean.lower().replace(' ', '-').replace('á','a').replace('é','e').replace('í','i').replace('ó','o').replace('ú','u')
     civitatis = f"https://www.civitatis.com/es/{civitatis_city}/"
     links['activities'].append({
-        'name': f'Excursiones en {city}',
+        'name': f'Free tours en {city}',
         'url': civitatis,
         'provider': 'Civitatis',
-        'description': 'Free tours y visitas guiadas'
+        'type': 'general',
+        'description': 'Visitas guiadas gratuitas'
     })
 
-    # Links específicos para cada lugar mencionado
+    # Links específicos para cada lugar mencionado (hasta 5)
     places = itinerary.get('places', [])
-    for place in places[:3]:  # Limitar a los 3 primeros lugares
+    for place in places[:5]:
         place_name = place.get('name', '')
         if place_name:
-            place_encoded = quote(f"{place_name} {city}")
+            # Buscar en Google el sitio oficial
+            google_search = f"https://www.google.com/search?q={quote(place_name + ' ' + city + ' entradas oficial')}"
 
-            # GetYourGuide para el lugar específico
-            place_link = f"https://www.getyourguide.es/s/?q={place_encoded}"
+            # También GetYourGuide para ese lugar específico
+            place_encoded = quote(f"{place_name} {city}")
+            getyourguide_place = f"https://www.getyourguide.es/s/?q={place_encoded}"
+
             links['activities'].append({
                 'name': place_name,
-                'url': place_link,
+                'url': getyourguide_place,
+                'url_official': google_search,
                 'provider': 'GetYourGuide',
+                'type': 'specific',
                 'description': f'Entradas y tours para {place_name}'
             })
 
