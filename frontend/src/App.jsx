@@ -44,7 +44,7 @@ export default function App() {
   const analyzeVideo = async (urlToAnalyze = null) => {
     const targetUrl = urlToAnalyze || videoUrl;
 
-    if (!targetUrl.trim()) {
+    if (!targetUrl || !targetUrl.trim()) {
       setError('Por favor, pega un link de TikTok o Instagram');
       return;
     }
