@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaTrip - Demo MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div class="flex items-center gap-3">
+                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">InstaTrip</h1>
+                    <p class="text-sm text-gray-600">Convierte videos de viajes en itinerarios reales</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Input Section -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                ¿Viste un video de viaje que te encantó?
+            </h2>
+            <p class="text-gray-600 mb-6">
+                Pega el link del video de TikTok o Instagram y te montamos el viaje completo
+            </p>
+
+            <div class="flex gap-4 mb-4">
+                <input
+                    type="text"
+                    id="videoUrl"
+                    placeholder="https://www.tiktok.com/@usuario/video/..."
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                <button
+                    onclick="analyzeVideo()"
+                    id="analyzeBtn"
+                    class="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold transition-colors flex items-center gap-2"
+                >
+                    <span>✈️</span>
+                    Crear Viaje
+                </button>
+            </div>
+
+            <div id="error" class="hidden p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 mb-4"></div>
+
+            <div class="mt-4 text-sm text-gray-500">
+                <p class="font-semibold mb-2">✨ Plataformas soportadas:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>TikTok (videos públicos)</li>
+                    <li>Instagram Reels (videos públicos)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden bg-white rounded-xl shadow-lg p-8 text-center">
+            <div class="animate-spin inline-block w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mb-4"></div>
+            <p class="text-gray-700 font-semibold">Analizando video y generando tu itinerario...</p>
+            <p class="text-sm text-gray-500 mt-2">Esto puede tomar unos segundos</p>
+        </div>
+
+        <!-- Results (hidden by default) -->
+        <div id="results" class="hidden space-y-6 animate-fadeIn">
+            <!-- Destination Overview -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h2 id="destination" class="text-3xl font-bold text-gray-900 mb-2"></h2>
+                        <p id="description" class="text-gray-600"></p>
+                    </div>
+                    <span class="text-4xl">📍</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="flex items-center gap-3 p-4 bg-indigo-50 rounded-lg">
+                        <span class="text-2xl">📅</span>
+                        <div>
+                            <p class="text-sm text-gray-600">Duración</p>
+                            <p id="duration" class="font-semibold text-gray-900"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
+                        <span class="text-2xl">💰</span>
+                        <div>
+                            <p class="text-sm text-gray-600">Presupuesto estimado</p>
+                            <p id="budget" class="font-semibold text-gray-900"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-4 bg-purple-50 rounded-lg">
+                        <span class="text-2xl">🌤️</span>
+                        <div>
+                            <p class="text-sm text-gray-600">Mejor época</p>
+                            <p id="bestTime" class="font-semibold text-gray-900"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Itinerary -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Itinerario Día a Día</h3>
+                <div id="dailyItinerary" class="space-y-6"></div>
+            </div>
+
+            <!-- Places -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Lugares Destacados del Video</h3>
+                <div id="places" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4 justify-center">
+                <button class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold transition-colors">
+                    Guardar Itinerario
+                </button>
+                <button class="px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 font-semibold transition-colors">
+                    Compartir
+                </button>
+                <button onclick="resetForm()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors">
+                    Analizar Otro Video
+                </button>
+            </div>
+        </div>
+
+        <!-- How it works -->
+        <div id="howItWorks" class="bg-white rounded-xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">¿Cómo funciona?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">📱</span>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">1. Pega el Link</h4>
+                    <p class="text-gray-600 text-sm">
+                        Copia el enlace de cualquier video de viaje que te inspire
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">🤖</span>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">2. IA Analiza</h4>
+                    <p class="text-gray-600 text-sm">
+                        Nuestra IA identifica lugares, actividades y crea tu itinerario
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">✈️</span>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">3. ¡A Viajar!</h4>
+                    <p class="text-gray-600 text-sm">
+                        Recibe tu plan completo listo para reservar y disfrutar
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white mt-16 py-8 border-t">
+        <div class="max-w-6xl mx-auto px-4 text-center text-gray-600 text-sm">
+            <p>InstaTrip - MVP © 2025</p>
+            <p class="mt-2">Convierte la inspiración en aventura</p>
+        </div>
+    </footer>
+
+    <script>
+        async function analyzeVideo() {
+            const videoUrl = document.getElementById('videoUrl').value.trim();
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            const howItWorksDiv = document.getElementById('howItWorks');
+            
+            // Reset
+            errorDiv.classList.add('hidden');
+            resultsDiv.classList.add('hidden');
+            
+            if (!videoUrl) {
+                showError('Por favor, pega un link de TikTok o Instagram');
+                return;
+            }
+
+            if (!videoUrl.includes('tiktok.com') && !videoUrl.includes('instagram.com')) {
+                showError('Por favor, proporciona un link válido de TikTok o Instagram');
+                return;
+            }
+
+            // Show loading
+            howItWorksDiv.classList.add('hidden');
+            loadingDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ video_url: videoUrl }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al analizar el video');
+                }
+
+                displayResults(data);
+            } catch (err) {
+                showError(err.message);
+                howItWorksDiv.classList.remove('hidden');
+            } finally {
+                loadingDiv.classList.add('hidden');
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('destination').textContent = data.destination;
+            document.getElementById('description').textContent = data.description;
+            document.getElementById('duration').textContent = data.duration;
+            document.getElementById('budget').textContent = data.budget;
+            document.getElementById('bestTime').textContent = data.best_time;
+
+            // Daily itinerary
+            const dailyDiv = document.getElementById('dailyItinerary');
+            dailyDiv.innerHTML = data.days.map((day, index) => `
+                <div class="border-l-4 border-indigo-600 pl-6 pb-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                            ${index + 1}
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">${day.title}</h4>
+                    </div>
+                    <div class="space-y-3">
+                        ${day.activities.map(activity => `
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-start gap-3">
+                                    <span class="text-xl">⏰</span>
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-gray-900">${activity.time}</p>
+                                        <p class="text-gray-700 mt-1">${activity.activity}</p>
+                                        ${activity.location ? `<p class="text-sm text-indigo-600 mt-1">📍 ${activity.location}</p>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Places
+            const placesDiv = document.getElementById('places');
+            placesDiv.innerHTML = data.places.map(place => `
+                <div class="p-4 border border-gray-200 rounded-lg hover:border-indigo-600 transition-colors">
+                    <h4 class="font-semibold text-gray-900 mb-2">${place.name}</h4>
+                    <p class="text-sm text-gray-600 mb-2">${place.description}</p>
+                    <p class="text-xs text-indigo-600">💡 ${place.tip}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('results').classList.remove('hidden');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function resetForm() {
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('howItWorks').classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
