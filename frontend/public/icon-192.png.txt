@@ -1,0 +1,6 @@
+Para generar los iconos PNG de 192x192 y 512x512, puedes usar:
+1. https://realfavicongenerator.net/ (subir icon.svg)
+2. O ejecutar: convert icon.svg -resize 192x192 icon-192.png
+3. O ejecutar: convert icon.svg -resize 512x512 icon-512.png
+
+Por ahora, el navegador usará icon.svg como fallback.

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plane, Loader2, MapPin, Calendar, DollarSign, Clock } from 'lucide-react';
 
 export default function App() {
@@ -7,8 +7,44 @@ export default function App() {
   const [itinerary, setItinerary] = useState(null);
   const [error, setError] = useState('');
 
-  const analyzeVideo = async () => {
-    if (!videoUrl.trim()) {
+  // Detectar si la app se abrió desde Web Share Target
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl = params.get('url') || params.get('text');
+
+    if (sharedUrl) {
+      // Limpiar la URL de parámetros extras que puedan venir
+      let cleanUrl = sharedUrl;
+
+      // Extraer URL de Instagram/TikTok si viene en texto
+      if (sharedUrl.includes('tiktok.com')) {
+        const match = sharedUrl.match(/(https?:\/\/[^\s]*tiktok\.com[^\s]*)/);
+        if (match) cleanUrl = match[1];
+      } else if (sharedUrl.includes('instagram.com')) {
+        const match = sharedUrl.match(/(https?:\/\/[^\s]*instagram\.com[^\s]*)/);
+        if (match) cleanUrl = match[1];
+      }
+
+      setVideoUrl(cleanUrl);
+
+      // Limpiar parámetros de la URL del navegador
+      window.history.replaceState({}, document.title, '/');
+
+      // Auto-analizar si es una URL válida
+      if (cleanUrl.includes('tiktok.com') || cleanUrl.includes('instagram.com')) {
+        // Pequeño delay para que el usuario vea que se cargó
+        setTimeout(() => {
+          const tempUrl = cleanUrl;
+          analyzeVideo(tempUrl);
+        }, 500);
+      }
+    }
+  }, []);
+
+  const analyzeVideo = async (urlToAnalyze = null) => {
+    const targetUrl = urlToAnalyze || videoUrl;
+
+    if (!targetUrl.trim()) {
       setError('Por favor, pega un link de TikTok o Instagram');
       return;
     }
@@ -23,7 +59,7 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ video_url: videoUrl }),
+        body: JSON.stringify({ video_url: targetUrl }),
       });
 
       const data = await response.json();
