@@ -61,6 +61,11 @@ export default function App() {
       }
 
       setItinerary(data);
+      console.log('📦 ITINERARIO COMPLETO:', data);
+      console.log('🔗 BOOKING LINKS RECIBIDOS:', data.booking_links);
+      console.log('✈️ Flights:', data.booking_links?.flights);
+      console.log('🏨 Hotels:', data.booking_links?.hotels);
+      console.log('🎫 Activities:', data.booking_links?.activities);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -427,7 +432,7 @@ export default function App() {
         </div>
       </footer>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
