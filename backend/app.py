@@ -412,6 +412,16 @@ def generate_booking_links(itinerary):
                 'description': f'Entradas y tours para {place_name}'
             })
 
+    # Debug: imprimir resumen de lo que se va a devolver
+    print(f"\n📋 RESUMEN BOOKING LINKS:")
+    print(f"   ✈️  Vuelos: {len(links['flights'])} items")
+    for f in links['flights']:
+        print(f"      - {f.get('type')}: {f.get('name')}")
+    print(f"   🏨 Hoteles: {len(links['hotels'])} items")
+    for h in links['hotels']:
+        print(f"      - {h.get('type')}: {h.get('name')}")
+    print(f"   🎫 Actividades: {len(links['activities'])} items")
+
     return links
 
 def extract_video_info(url):

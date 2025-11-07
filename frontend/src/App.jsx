@@ -66,6 +66,16 @@ export default function App() {
       console.log('✈️ Flights:', data.booking_links?.flights);
       console.log('🏨 Hotels:', data.booking_links?.hotels);
       console.log('🎫 Activities:', data.booking_links?.activities);
+
+      // Debug: contar cuántos de cada tipo
+      if (data.booking_links?.flights) {
+        const searchMain = data.booking_links.flights.filter(f => f.type === 'search_main');
+        console.log(`🔍 Buscadores de vuelos (search_main): ${searchMain.length}`, searchMain);
+      }
+      if (data.booking_links?.hotels) {
+        const searchMain = data.booking_links.hotels.filter(h => h.type === 'search_main');
+        console.log(`🔍 Buscadores de hoteles (search_main): ${searchMain.length}`, searchMain);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
