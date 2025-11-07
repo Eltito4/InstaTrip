@@ -225,7 +225,21 @@ def search_hotels_amadeus(city_code, checkin, checkout):
         print(f"Error buscando hoteles: {str(e)}")
         return []
 
-def generate_booking_links(itinerary):
+def get_city_from_iata(iata_code):
+    """Convierte código IATA a nombre de ciudad"""
+    iata_to_city = {
+        'MAD': 'Madrid',
+        'BCN': 'Barcelona',
+        'VLC': 'Valencia',
+        'SVQ': 'Sevilla',
+        'AGP': 'Málaga',
+        'BIO': 'Bilbao',
+        'ALC': 'Alicante',
+        'PMI': 'Palma de Mallorca',
+    }
+    return iata_to_city.get(iata_code, 'Madrid')
+
+def generate_booking_links(itinerary, origin_iata='MAD'):
     """Genera links automáticos a buscadores Y busca ofertas reales con Amadeus"""
 
     destination = itinerary.get('destination', '')
@@ -237,67 +251,82 @@ def generate_booking_links(itinerary):
     if not city:
         city = destination
 
-    # Calcular fechas (viaje en 2 meses)
-    start_date = datetime.now() + timedelta(days=60)
     duration_str = itinerary.get('duration', '5 días')
     duration_days = int(re.search(r'\d+', duration_str).group()) if re.search(r'\d+', duration_str) else 5
-    end_date = start_date + timedelta(days=duration_days)
 
-    departure_str = start_date.strftime('%Y-%m-%d')
-    return_str = end_date.strftime('%Y-%m-%d')
+    # Generar 2 opciones de fechas DIFERENTES
+    date_options = []
 
-    # Generar explicación de por qué esta fecha
-    month_name = start_date.strftime('%B')
-    month_name_es = {
-        'January': 'enero', 'February': 'febrero', 'March': 'marzo',
-        'April': 'abril', 'May': 'mayo', 'June': 'junio',
-        'July': 'julio', 'August': 'agosto', 'September': 'septiembre',
-        'October': 'octubre', 'November': 'noviembre', 'December': 'diciembre'
-    }.get(month_name, month_name.lower())
+    # Opción 1: Dentro de 2 meses
+    start_date_1 = datetime.now() + timedelta(days=60)
+    end_date_1 = start_date_1 + timedelta(days=duration_days)
+    date_options.append({
+        'departure': start_date_1.strftime('%Y-%m-%d'),
+        'return': end_date_1.strftime('%Y-%m-%d'),
+        'duration_days': duration_days,
+        'label': 'Opción 1',
+        'reason': 'Precios más económicos (60 días anticipación)'
+    })
 
-    date_explanation = f"📅 Recomendamos estas fechas por varios motivos: reservar con 2 meses de anticipación suele ofrecer los mejores precios, {month_name_es} es buena época para visitar {destination}, y tienes tiempo suficiente para planificar tu viaje."
+    # Opción 2: Dentro de 2.5 meses
+    start_date_2 = datetime.now() + timedelta(days=75)
+    end_date_2 = start_date_2 + timedelta(days=duration_days)
+    date_options.append({
+        'departure': start_date_2.strftime('%Y-%m-%d'),
+        'return': end_date_2.strftime('%Y-%m-%d'),
+        'duration_days': duration_days,
+        'label': 'Opción 2',
+        'reason': 'Mayor flexibilidad (75 días anticipación)'
+    })
 
     links = {
         'flights': [],
         'hotels': [],
         'activities': [],
-        'suggested_dates': {
-            'departure': departure_str,
-            'return': return_str,
-            'duration_days': duration_days,
-            'explanation': date_explanation
-        }
+        'origin': {
+            'iata_code': origin_iata,
+            'city': get_city_from_iata(origin_iata)
+        },
+        'date_options': date_options
     }
 
-    # === OBTENER OFERTAS REALES DE VUELOS ===
+    # === OBTENER OFERTAS REALES DE VUELOS PARA CADA OPCIÓN DE FECHA ===
     if airport_code and AMADEUS_API_KEY:
-        print(f"💰 Buscando ofertas reales de vuelos a {airport_code}...")
-        flight_offers = search_flights_amadeus('MAD', airport_code, departure_str, return_str)
+        for date_option in date_options:
+            print(f"💰 Buscando vuelos para {date_option['label']} ({date_option['departure']} - {date_option['return']})...")
+            flight_offers = search_flights_amadeus(origin_iata, airport_code, date_option['departure'], date_option['return'])
 
-        for idx, flight in enumerate(flight_offers[:3], 1):  # Máximo 3 ofertas
-            # URL para reservar (Google Flights con parámetros específicos)
-            booking_url = f"https://www.google.com/travel/flights?hl=es&gl=ES&q=flights+from+MAD+to+{airport_code}+on+{departure_str}+return+{return_str}"
+            if flight_offers:
+                # Tomar solo la mejor oferta para esta fecha
+                best_flight = flight_offers[0]
 
-            links['flights'].append({
-                'type': 'offer',  # Oferta real con precio
-                'rank': idx,
-                'airline': flight['airline'],
-                'price': flight['price'],
-                'currency': flight['currency'],
-                'duration': flight['duration'],
-                'direct': flight['direct'],
-                'stops': flight['stops'],
-                'url': booking_url,
-                'name': f"{flight['airline']} - €{flight['price']:.0f}",
-                'description': f"{flight['duration']}, {'Directo' if flight['direct'] else f'{flight['stops']} escala(s)'}"
-            })
-            print(f"   ✈️  Opción {idx}: {flight['airline']} - €{flight['price']:.0f} ({flight['duration']})")
+                # URL para reservar
+                booking_url = f"https://www.google.com/travel/flights?hl=es&gl=ES&q=flights+from+{origin_iata}+to+{airport_code}+on+{date_option['departure']}+return+{date_option['return']}"
+
+                links['flights'].append({
+                    'type': 'offer',  # Oferta real con precio
+                    'date_option': date_option['label'],
+                    'date_range': f"{date_option['departure']} - {date_option['return']}",
+                    'date_reason': date_option['reason'],
+                    'airline': best_flight['airline'],
+                    'price': best_flight['price'],
+                    'currency': best_flight['currency'],
+                    'duration': best_flight['duration'],
+                    'direct': best_flight['direct'],
+                    'stops': best_flight['stops'],
+                    'trip_type': 'Ida y vuelta',
+                    'baggage': '1 equipaje de mano incluido',
+                    'url': booking_url,
+                    'name': f"{best_flight['airline']} - €{best_flight['price']:.0f}",
+                    'description': f"{best_flight['duration']}, {'Directo' if best_flight['direct'] else f'{best_flight['stops']} escala(s)'}"
+                })
+                print(f"   ✈️  {date_option['label']}: {best_flight['airline']} - €{best_flight['price']:.0f} ({best_flight['duration']})")
 
     # === BUSCADORES ALTERNATIVOS DE VUELOS ===
     destination_clean = destination.replace(',', '').strip()
 
     # Google Flights
-    google_flights = f"https://www.google.com/travel/flights?hl=es&gl=ES&q=flights+from+MAD+to+{airport_code if airport_code else quote(destination_clean)}+on+{departure_str}+return+{return_str}"
+    google_flights = f"https://www.google.com/travel/flights?hl=es&gl=ES&q=flights+from+{origin_iata}+to+{airport_code if airport_code else quote(destination_clean)}"
     links['flights'].append({
         'type': 'search_alternative',
         'name': 'Google Flights',
@@ -308,9 +337,9 @@ def generate_booking_links(itinerary):
 
     # Skyscanner
     if airport_code:
-        skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{airport_code.lower()}/{departure_str.replace('-', '')}/{return_str.replace('-', '')}/?adultsv2=2&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=1"
+        skyscanner = f"https://www.skyscanner.es/transport/flights/{origin_iata.lower()}/{airport_code.lower()}/"
     else:
-        skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{quote(destination_clean)}/"
+        skyscanner = f"https://www.skyscanner.es/transport/flights/{origin_iata.lower()}/{quote(destination_clean)}/"
 
     links['flights'].append({
         'type': 'search_alternative',
@@ -321,38 +350,44 @@ def generate_booking_links(itinerary):
     })
 
     # === OBTENER OFERTAS REALES DE HOTELES ===
+    # Usar la primera opción de fecha
+    first_date = date_options[0]
     if city_code and AMADEUS_API_KEY:
         print(f"💰 Buscando ofertas reales de hoteles en {city_code}...")
-        hotel_offers = search_hotels_amadeus(city_code, departure_str, return_str)
+        hotel_offers = search_hotels_amadeus(city_code, first_date['departure'], first_date['return'])
 
-        for idx, hotel in enumerate(hotel_offers[:3], 1):  # Máximo 3 ofertas
-            stars = '⭐' * hotel['rating'] if hotel['rating'] > 0 else ''
+        if hotel_offers:
+            for idx, hotel in enumerate(hotel_offers[:3], 1):  # Máximo 3 ofertas
+                stars = '⭐' * hotel['rating'] if hotel['rating'] > 0 else ''
 
-            # URL para reservar (Booking.com con ciudad y fechas)
-            city_for_booking = city.replace(',', '').strip()
-            booking_url = f"https://www.booking.com/searchresults.html?ss={quote(city_for_booking)}&checkin={departure_str}&checkout={return_str}&group_adults=2&no_rooms=1"
+                # URL para reservar (Booking.com con ciudad y fechas)
+                city_for_booking = city.replace(',', '').strip()
+                booking_url = f"https://www.booking.com/searchresults.html?ss={quote(city_for_booking)}&checkin={first_date['departure']}&checkout={first_date['return']}&group_adults=2&no_rooms=1"
 
-            links['hotels'].append({
-                'type': 'offer',  # Oferta real con precio
-                'rank': idx,
-                'name': hotel['name'],
-                'price_per_night': hotel['price_per_night'],
-                'price_total': hotel['price_total'],
-                'currency': hotel['currency'],
-                'rating': hotel['rating'],
-                'nights': hotel['nights'],
-                'city': hotel.get('city', ''),
-                'room_description': hotel.get('description', 'Habitación estándar'),
-                'url': booking_url,
-                'description': f"€{hotel['price_per_night']:.0f}/noche ({hotel['nights']} noches) {stars}"
-            })
-            print(f"   🏨 Opción {idx}: {hotel['name']} - €{hotel['price_per_night']:.0f}/noche ({hotel['rating']} estrellas)")
+                links['hotels'].append({
+                    'type': 'offer',  # Oferta real con precio
+                    'rank': idx,
+                    'name': hotel['name'],
+                    'price_per_night': hotel['price_per_night'],
+                    'price_total': hotel['price_total'],
+                    'currency': hotel['currency'],
+                    'rating': hotel['rating'],
+                    'nights': hotel['nights'],
+                    'city': hotel.get('city', city),
+                    'location': hotel.get('city', city),
+                    'room_description': hotel.get('description', 'Habitación estándar'),
+                    'url': booking_url,
+                    'description': f"€{hotel['price_per_night']:.0f}/noche ({hotel['nights']} noches) {stars}"
+                })
+                print(f"   🏨 Opción {idx}: {hotel['name']} - €{hotel['price_per_night']:.0f}/noche ({hotel['rating']} estrellas)")
+        else:
+            print(f"   ⚠️  No se encontraron hoteles con Amadeus. Se mostrarán buscadores.")
 
     # === BUSCADORES ALTERNATIVOS DE HOTELES ===
     city_clean = city.replace(',', '').strip()
 
     # Booking.com
-    booking = f"https://www.booking.com/searchresults.html?ss={quote(city_clean)}&checkin={departure_str}&checkout={return_str}&group_adults=2&no_rooms=1&group_children=0"
+    booking = f"https://www.booking.com/searchresults.html?ss={quote(city_clean)}&checkin={first_date['departure']}&checkout={first_date['return']}&group_adults=2&no_rooms=1&group_children=0"
     links['hotels'].append({
         'type': 'search_alternative',
         'name': 'Booking.com',
@@ -362,7 +397,7 @@ def generate_booking_links(itinerary):
     })
 
     # Airbnb
-    airbnb = f"https://www.airbnb.es/s/{quote(city_clean)}/homes?checkin={departure_str}&checkout={return_str}&adults=2"
+    airbnb = f"https://www.airbnb.es/s/{quote(city_clean)}/homes?checkin={first_date['departure']}&checkout={first_date['return']}&adults=2"
     links['hotels'].append({
         'type': 'search_alternative',
         'name': 'Airbnb',
@@ -647,6 +682,74 @@ IMPORTANTE:
         print(f"Error al generar itinerario: {str(e)}")
         raise
 
+@app.route('/api/detect-location', methods=['GET'])
+def detect_location():
+    """Detecta la ubicación del usuario basándose en su IP"""
+    try:
+        # Intentar obtener IP del usuario
+        if request.headers.getlist("X-Forwarded-For"):
+            user_ip = request.headers.getlist("X-Forwarded-For")[0]
+        else:
+            user_ip = request.remote_addr
+
+        # Si es localhost, usar servicio de IP pública
+        if user_ip in ['127.0.0.1', 'localhost', '::1']:
+            # Obtener IP pública
+            try:
+                ip_response = requests.get('https://api.ipify.org?format=json', timeout=3)
+                user_ip = ip_response.json().get('ip', user_ip)
+            except:
+                pass
+
+        # Usar servicio de geolocalización gratuito
+        try:
+            geo_response = requests.get(f'http://ip-api.com/json/{user_ip}', timeout=5)
+            geo_data = geo_response.json()
+
+            if geo_data.get('status') == 'success':
+                city = geo_data.get('city', 'Madrid')
+                country = geo_data.get('country', 'España')
+
+                # Mapeo de ciudades a códigos de aeropuerto IATA
+                city_to_iata = {
+                    'Madrid': 'MAD',
+                    'Barcelona': 'BCN',
+                    'Valencia': 'VLC',
+                    'Sevilla': 'SVQ',
+                    'Málaga': 'AGP',
+                    'Bilbao': 'BIO',
+                    'Alicante': 'ALC',
+                    'Palma': 'PMI',
+                }
+
+                iata_code = city_to_iata.get(city, 'MAD')
+
+                return jsonify({
+                    'city': city,
+                    'country': country,
+                    'iata_code': iata_code,
+                    'detected': True
+                })
+        except Exception as e:
+            print(f"Error en geolocalización: {str(e)}")
+
+        # Fallback a Madrid si falla
+        return jsonify({
+            'city': 'Madrid',
+            'country': 'España',
+            'iata_code': 'MAD',
+            'detected': False
+        })
+
+    except Exception as e:
+        print(f"Error detectando ubicación: {str(e)}")
+        return jsonify({
+            'city': 'Madrid',
+            'country': 'España',
+            'iata_code': 'MAD',
+            'detected': False
+        })
+
 @app.route('/api/analyze', methods=['POST'])
 def analyze_video():
     """Endpoint para analizar un video REAL y generar itinerario basado en su contenido"""
@@ -655,6 +758,7 @@ def analyze_video():
     try:
         data = request.get_json()
         video_url = data.get('video_url', '').strip()
+        origin_iata = data.get('origin_iata', 'MAD').strip().upper()  # Origen del vuelo
 
         if not video_url:
             return jsonify({'error': 'URL del video es requerida'}), 400
@@ -691,7 +795,8 @@ def analyze_video():
 
         # PASO 4: Generar links automáticos a buscadores de vuelos, hoteles y actividades
         print(f"🔗 Generando links a buscadores de vuelos, hoteles y actividades...")
-        booking_links = generate_booking_links(itinerary)
+        print(f"📍 Origen del vuelo: {get_city_from_iata(origin_iata)} ({origin_iata})")
+        booking_links = generate_booking_links(itinerary, origin_iata)
         itinerary['booking_links'] = booking_links
 
         # Limpiar archivo temporal
