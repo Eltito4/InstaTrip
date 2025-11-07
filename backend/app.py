@@ -176,13 +176,22 @@ def search_hotels_amadeus(city_code, checkin, checkout):
             if not hotel.get('offers'):
                 continue
 
-            hotel_name = hotel['hotel'].get('name', 'Hotel')
-            rating = hotel['hotel'].get('rating', 0)
+            hotel_info = hotel.get('hotel', {})
+            hotel_name = hotel_info.get('name', 'Hotel')
+            rating = hotel_info.get('rating', 0)
+
+            # FILTRAR: Solo hoteles con rating >= 4 estrellas (equivalente a 8/10)
+            if not rating or int(rating) < 4:
+                continue
 
             # Obtener la oferta más barata
             offer = sorted(hotel['offers'], key=lambda x: float(x['price']['total']))[0]
             price_total = float(offer['price']['total'])
             currency = offer['price']['currency']
+
+            # Información adicional del hotel
+            address = hotel_info.get('address', {})
+            city_name = address.get('cityName', '')
 
             # Calcular precio por noche
             checkin_date = datetime.strptime(checkin, '%Y-%m-%d')
@@ -196,12 +205,14 @@ def search_hotels_amadeus(city_code, checkin, checkout):
                 'price_total': round(price_total, 2),
                 'currency': currency,
                 'rating': int(rating) if rating else 0,
-                'nights': nights
+                'nights': nights,
+                'city': city_name,
+                'description': offer.get('room', {}).get('description', {}).get('text', 'Habitación estándar')
             })
 
-        # Ordenar por precio y tomar los 2 más baratos
+        # Ordenar por precio y tomar los 3 más baratos
         hotel_options.sort(key=lambda x: x['price_per_night'])
-        result = hotel_options[:2]
+        result = hotel_options[:3]
 
         print(f"✅ Encontrados {len(result)} hoteles")
         return result
@@ -298,6 +309,8 @@ def generate_booking_links(itinerary):
                 'currency': hotel['currency'],
                 'rating': hotel['rating'],
                 'nights': hotel['nights'],
+                'city': hotel.get('city', ''),
+                'room_description': hotel.get('description', 'Habitación estándar'),
                 'description': f"{hotel['currency']}{hotel['price_per_night']:.0f}/noche ({hotel['nights']} noches) {stars}"
             })
 
