@@ -169,6 +169,7 @@ def search_hotels_amadeus(city_code, checkin, checkout):
             return []
 
         offers_data = response_offers.json().get('data', [])
+        print(f"📊 Total ofertas de hoteles recibidas: {len(offers_data)}")
 
         # Procesar y ordenar por precio
         hotel_options = []
@@ -181,7 +182,8 @@ def search_hotels_amadeus(city_code, checkin, checkout):
             rating = hotel_info.get('rating', 0)
 
             # FILTRAR: Solo hoteles con rating >= 4 estrellas (equivalente a 8/10)
-            if not rating or int(rating) < 4:
+            # Si no hay suficientes con rating alto, relajar el filtro
+            if rating and int(rating) < 4:
                 continue
 
             # Obtener la oferta más barata
@@ -214,7 +216,9 @@ def search_hotels_amadeus(city_code, checkin, checkout):
         hotel_options.sort(key=lambda x: x['price_per_night'])
         result = hotel_options[:3]
 
-        print(f"✅ Encontrados {len(result)} hoteles")
+        print(f"✅ Encontrados {len(result)} hoteles después del filtrado (rating >= 4)")
+        for idx, h in enumerate(result, 1):
+            print(f"   {idx}. {h['name']} - {h['currency']}{h['price_per_night']}/noche ({h['rating']} estrellas)")
         return result
 
     except Exception as e:
@@ -259,6 +263,10 @@ def generate_booking_links(itinerary):
         flight_offers = search_flights_amadeus('MAD', airport_code, departure_str, return_str)
 
         for idx, flight in enumerate(flight_offers, 1):
+            # Generar URL directa a Google Flights con todos los datos prellenados
+            # Formato: google.com/travel/flights?hl=es&gl=ES&q=flights+from+MAD+to+BCN+on+2026-01-07+return+2026-01-12
+            google_flights_url = f"https://www.google.com/travel/flights?hl=es&gl=ES&q=flights+from+MAD+to+{airport_code}+on+{departure_str}+return+{return_str}"
+
             links['flights'].append({
                 'type': 'offer',  # Oferta real con precio
                 'rank': idx,
@@ -268,6 +276,7 @@ def generate_booking_links(itinerary):
                 'duration': flight['duration'],
                 'direct': flight['direct'],
                 'stops': flight['stops'],
+                'url': google_flights_url,  # URL para reservar
                 'name': f"{flight['airline']} - {flight['currency']}{flight['price']:.0f}",
                 'description': f"{flight['duration']}, {'directo' if flight['direct'] else f'{flight['stops']} escala(s)'}"
             })
@@ -300,6 +309,12 @@ def generate_booking_links(itinerary):
 
         for idx, hotel in enumerate(hotel_offers, 1):
             stars = '⭐' * hotel['rating'] if hotel['rating'] > 0 else ''
+
+            # Generar URL directa a Booking.com con datos prellenados
+            # Formato: booking.com/searchresults.html?ss=Barcelona&checkin=2026-01-07&checkout=2026-01-12
+            city_for_url = city.replace(',', '').strip()
+            booking_url = f"https://www.booking.com/searchresults.html?ss={quote(city_for_url)}&checkin={departure_str}&checkout={return_str}&group_adults=2"
+
             links['hotels'].append({
                 'type': 'offer',  # Oferta real con precio
                 'rank': idx,
@@ -311,6 +326,7 @@ def generate_booking_links(itinerary):
                 'nights': hotel['nights'],
                 'city': hotel.get('city', ''),
                 'room_description': hotel.get('description', 'Habitación estándar'),
+                'url': booking_url,  # URL para reservar
                 'description': f"{hotel['currency']}{hotel['price_per_night']:.0f}/noche ({hotel['nights']} noches) {stars}"
             })
 
