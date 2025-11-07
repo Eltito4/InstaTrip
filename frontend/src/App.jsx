@@ -6,6 +6,20 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [itinerary, setItinerary] = useState(null);
   const [error, setError] = useState('');
+  const [userLocation, setUserLocation] = useState({ city: 'Madrid', iata_code: 'MAD', detected: false });
+
+  // Detectar ubicación del usuario al cargar
+  useEffect(() => {
+    fetch('http://localhost:5000/api/detect-location')
+      .then(res => res.json())
+      .then(data => {
+        setUserLocation(data);
+        console.log('📍 Ubicación detectada:', data);
+      })
+      .catch(err => {
+        console.log('⚠️  No se pudo detectar ubicación, usando Madrid por defecto');
+      });
+  }, []);
 
   // Detectar si la app se abrió desde Web Share Target (PWA)
   useEffect(() => {
@@ -51,7 +65,10 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ video_url: targetUrl }),
+        body: JSON.stringify({
+          video_url: targetUrl,
+          origin_iata: userLocation.iata_code
+        }),
       });
 
       const data = await response.json();
@@ -105,9 +122,20 @@ export default function App() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             ¿Viste un video de viaje que te encantó?
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-4">
             Pega el link del video de TikTok o Instagram y te montamos el viaje completo
           </p>
+
+          {/* Ubicación detectada */}
+          <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="w-4 h-4 text-indigo-600" />
+              <span className="text-gray-700">
+                Tu ubicación: <strong>{userLocation.city}</strong> ({userLocation.iata_code})
+              </span>
+              {userLocation.detected && <span className="text-green-600 text-xs">✓ Detectado</span>}
+            </div>
+          </div>
 
           <div className="flex gap-4 mb-4">
             <input
@@ -300,12 +328,22 @@ export default function App() {
                                 <div className="flex items-center gap-2 mb-1">
                                   <p className="text-lg font-bold text-gray-900">{flight.airline}</p>
                                   <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">
-                                    OPCIÓN {index + 1}
+                                    {flight.date_option || `OPCIÓN ${index + 1}`}
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-600">
+                                {flight.date_range && (
+                                  <p className="text-xs text-indigo-600 mb-1 font-medium">
+                                    📅 {flight.date_range} • {flight.date_reason}
+                                  </p>
+                                )}
+                                <p className="text-sm text-gray-600 mb-1">
                                   {flight.duration} • {flight.stops === 0 ? 'Vuelo directo' : `${flight.stops} escala${flight.stops > 1 ? 's' : ''}`}
                                 </p>
+                                <div className="flex gap-2 text-xs text-gray-500">
+                                  <span>✓ {flight.trip_type || 'Ida y vuelta'}</span>
+                                  <span>•</span>
+                                  <span>🎒 {flight.baggage || '1 equipaje de mano'}</span>
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-6">
@@ -382,15 +420,15 @@ export default function App() {
                                 </div>
                                 <div className="flex items-center gap-3 text-sm text-gray-600 mb-2">
                                   {hotel.rating && hotel.rating > 0 && (
-                                    <span className="flex items-center gap-1">
-                                      <span className="text-yellow-500 font-bold">{hotel.rating}/5</span>
+                                    <span className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded">
+                                      <span className="text-yellow-600 font-bold">{hotel.rating}/5</span>
                                       <span>{' ⭐'.repeat(Math.round(hotel.rating))}</span>
                                     </span>
                                   )}
-                                  {hotel.city && (
-                                    <span className="flex items-center gap-1">
+                                  {(hotel.location || hotel.city) && (
+                                    <span className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded">
                                       <span>📍</span>
-                                      <span>{hotel.city}</span>
+                                      <span className="font-medium">{hotel.location || hotel.city}</span>
                                     </span>
                                   )}
                                 </div>
