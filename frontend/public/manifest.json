@@ -7,6 +7,11 @@
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["travel", "lifestyle", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
@@ -21,6 +26,7 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [],
   "share_target": {
     "action": "/share",
     "method": "GET",
@@ -30,5 +36,6 @@
       "text": "text",
       "url": "url"
     }
-  }
+  },
+  "display_override": ["standalone", "minimal-ui", "browser"]
 }

@@ -102,54 +102,55 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <Plane className="w-8 h-8 text-indigo-600" />
+      {/* Header - Mobile Optimized */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Plane className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600" />
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">InstaTrip</h1>
-              <p className="text-sm text-gray-600">Convierte videos de viajes en itinerarios reales</p>
+              <h1 className="text-xl sm:text-3xl font-bold text-gray-900">InstaTrip</h1>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Convierte videos de viajes en itinerarios reales</p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Input Section */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+      {/* Main Content - Mobile Optimized */}
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-6">
+        {/* Input Section - Mobile Optimized */}
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-8 mb-4 sm:mb-8">
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-4">
             ¿Viste un video de viaje que te encantó?
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
             Pega el link del video de TikTok o Instagram y te montamos el viaje completo
           </p>
 
-          {/* Ubicación detectada */}
-          <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin className="w-4 h-4 text-indigo-600" />
+          {/* Ubicación detectada - Mobile Optimized */}
+          <div className="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+            <div className="flex items-center gap-2 text-xs sm:text-sm">
+              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 flex-shrink-0" />
               <span className="text-gray-700">
                 Tu ubicación: <strong>{userLocation.city}</strong> ({userLocation.iata_code})
               </span>
-              {userLocation.detected && <span className="text-green-600 text-xs">✓ Detectado</span>}
+              {userLocation.detected && <span className="text-green-600 text-xs">✓</span>}
             </div>
           </div>
 
-          <div className="flex gap-4 mb-4">
+          {/* Mobile: Stack input and button */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3 sm:mb-4">
             <input
               type="text"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="https://www.tiktok.com/@usuario/video/..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="flex-1 px-3 sm:px-4 py-3 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               disabled={loading}
             />
             <button
               onClick={() => analyzeVideo()}
               disabled={loading}
-              className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition-colors flex items-center gap-2"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition-colors flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation"
             >
               {loading ? (
                 <>
@@ -166,89 +167,89 @@ export default function App() {
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm sm:text-base">
               {error}
             </div>
           )}
 
-          <div className="mt-4 text-sm text-gray-500">
-            <p className="font-semibold mb-2">✨ Plataformas soportadas:</p>
-            <ul className="list-disc list-inside space-y-1">
+          <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500">
+            <p className="font-semibold mb-1 sm:mb-2">✨ Plataformas soportadas:</p>
+            <ul className="list-disc list-inside space-y-0.5 sm:space-y-1">
               <li>TikTok (videos públicos)</li>
               <li>Instagram Reels (videos públicos)</li>
             </ul>
           </div>
         </div>
 
-        {/* Results Section */}
+        {/* Results Section - Mobile Optimized */}
         {itinerary && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Destination Overview */}
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="space-y-4 sm:space-y-6 animate-fadeIn">
+            {/* Destination Overview - Mobile Optimized */}
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-8">
+              <div className="flex items-start justify-between mb-4 sm:mb-6">
+                <div className="flex-1">
+                  <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
                     {itinerary.destination}
                   </h2>
-                  <p className="text-gray-600">{itinerary.description}</p>
+                  <p className="text-sm sm:text-base text-gray-600">{itinerary.description}</p>
                 </div>
-                <MapPin className="w-8 h-8 text-indigo-600" />
+                <MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600 flex-shrink-0 ml-2" />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center gap-3 p-4 bg-indigo-50 rounded-lg">
-                  <Calendar className="w-6 h-6 text-indigo-600" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-indigo-50 rounded-lg">
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-gray-600">Duración</p>
-                    <p className="font-semibold text-gray-900">{itinerary.duration}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Duración</p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900">{itinerary.duration}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-green-600" />
+                <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-green-50 rounded-lg">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-gray-600">Presupuesto estimado</p>
-                    <p className="font-semibold text-gray-900">{itinerary.budget}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Presupuesto estimado</p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900">{itinerary.budget}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg">
-                  <Clock className="w-6 h-6 text-purple-600" />
+                <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-purple-50 rounded-lg">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-gray-600">Mejor época</p>
-                    <p className="font-semibold text-gray-900">{itinerary.best_time}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Mejor época</p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900">{itinerary.best_time}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Daily Itinerary */}
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+            {/* Daily Itinerary - Mobile Optimized */}
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-8">
+              <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
                 Itinerario Día a Día
               </h3>
               {itinerary.note && (
-                <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                  <p className="text-sm text-blue-800">{itinerary.note}</p>
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 border-l-4 border-blue-500 rounded text-xs sm:text-sm">
+                  <p className="text-blue-800">{itinerary.note}</p>
                 </div>
               )}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {itinerary.days.map((day, index) => (
-                  <div key={index} className="border-l-4 border-indigo-600 pl-6 pb-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                  <div key={index} className="border-l-4 border-indigo-600 pl-3 sm:pl-6 pb-4 sm:pb-6">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base flex-shrink-0">
                         {index + 1}
                       </div>
-                      <h4 className="text-xl font-bold text-gray-900">{day.title}</h4>
+                      <h4 className="text-base sm:text-xl font-bold text-gray-900">{day.title}</h4>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {day.activities.map((activity, actIndex) => (
-                        <div key={actIndex} className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex items-start gap-3">
-                            <Clock className="w-5 h-5 text-gray-400 mt-1" />
-                            <div className="flex-1">
-                              <p className="font-semibold text-gray-900">{activity.time}</p>
-                              <p className="text-gray-700 mt-1">{activity.activity}</p>
+                        <div key={actIndex} className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                          <div className="flex items-start gap-2 sm:gap-3">
+                            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mt-0.5 sm:mt-1 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm sm:text-base font-semibold text-gray-900">{activity.time}</p>
+                              <p className="text-xs sm:text-base text-gray-700 mt-0.5 sm:mt-1">{activity.activity}</p>
                               {activity.location && (
-                                <p className="text-sm text-indigo-600 mt-1">
+                                <p className="text-xs sm:text-sm text-indigo-600 mt-0.5 sm:mt-1">
                                   📍 {activity.location}
                                 </p>
                               )}
@@ -262,72 +263,72 @@ export default function App() {
               </div>
             </div>
 
-            {/* Places to Visit */}
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            {/* Places to Visit - Mobile Optimized */}
+            <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-8">
+              <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-6">
                 Lugares Destacados del Video
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {itinerary.places.map((place, index) => (
-                  <div key={index} className="p-4 border border-gray-200 rounded-lg hover:border-indigo-600 transition-colors">
-                    <h4 className="font-semibold text-gray-900 mb-2">{place.name}</h4>
-                    <p className="text-sm text-gray-600 mb-2">{place.description}</p>
+                  <div key={index} className="p-3 sm:p-4 border border-gray-200 rounded-lg hover:border-indigo-600 transition-colors touch-manipulation active:bg-gray-50">
+                    <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">{place.name}</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">{place.description}</p>
                     <p className="text-xs text-indigo-600">💡 {place.tip}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Booking Links */}
+            {/* Booking Links - Mobile Optimized */}
             {itinerary.booking_links && (
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-lg p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-8">
+                <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
                   ✈️ Reserva tu Viaje
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-xs sm:text-base text-gray-600 mb-4 sm:mb-6">
                   Haz clic en los enlaces para comparar precios y reservar
                 </p>
 
-                {/* Suggested Dates & Explanation */}
+                {/* Suggested Dates & Explanation - Mobile Optimized */}
                 {itinerary.booking_links.suggested_dates && (
-                  <div className="mb-6 p-5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Calendar className="w-6 h-6 text-indigo-600" />
-                      <h4 className="text-lg font-bold text-gray-900">Fechas Recomendadas</h4>
+                  <div className="mb-4 sm:mb-6 p-3 sm:p-5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200">
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 flex-shrink-0" />
+                      <h4 className="text-sm sm:text-lg font-bold text-gray-900">Fechas Recomendadas</h4>
                     </div>
-                    <p className="text-2xl text-indigo-600 font-bold mb-3">
+                    <p className="text-base sm:text-2xl text-indigo-600 font-bold mb-2 sm:mb-3">
                       {new Date(itinerary.booking_links.suggested_dates.departure).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} - {new Date(itinerary.booking_links.suggested_dates.return).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
-                    <p className="text-sm text-gray-700 bg-white/70 p-3 rounded">
+                    <p className="text-xs sm:text-sm text-gray-700 bg-white/70 p-2 sm:p-3 rounded">
                       {itinerary.booking_links.suggested_dates.explanation || `Viaje de ${itinerary.booking_links.suggested_dates.duration_days} días`}
                     </p>
                   </div>
                 )}
 
-                {/* Vuelos */}
-                <div className="mb-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                {/* Vuelos - Mobile Optimized */}
+                <div className="mb-4 sm:mb-6">
+                  <h4 className="text-base sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 flex items-center gap-2">
                     <span>✈️</span> Vuelos Disponibles
                   </h4>
 
-                  {/* Ofertas Reales */}
+                  {/* Ofertas Reales - Mobile Optimized */}
                   {itinerary.booking_links.flights.filter(f => f.type === 'offer').length > 0 && (
-                    <div className="mb-6">
-                      <p className="text-sm text-gray-600 mb-3">💰 Mejores precios para estas fechas:</p>
+                    <div className="mb-4 sm:mb-6">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">💰 Mejores precios para estas fechas:</p>
                       <div className="space-y-3">
                         {itinerary.booking_links.flights.filter(f => f.type === 'offer').map((flight, index) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between p-5 bg-white rounded-xl border-2 border-green-200 hover:border-green-400 transition-all shadow-sm"
+                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-5 bg-white rounded-lg sm:rounded-xl border-2 border-green-200 hover:border-green-400 transition-all shadow-sm"
                           >
-                            <div className="flex items-center gap-4 flex-1">
-                              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-                                <span className="text-3xl">✈️</span>
+                            <div className="flex items-start gap-3 sm:gap-4 flex-1 mb-3 sm:mb-0">
+                              <div className="flex-shrink-0 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                                <span className="text-xl sm:text-3xl">✈️</span>
                               </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <p className="text-lg font-bold text-gray-900">{flight.airline}</p>
-                                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                                  <p className="text-sm sm:text-lg font-bold text-gray-900">{flight.airline}</p>
+                                  <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-100 text-green-700 text-xs font-bold rounded whitespace-nowrap">
                                     {flight.date_option || `OPCIÓN ${index + 1}`}
                                   </span>
                                 </div>
@@ -336,26 +337,26 @@ export default function App() {
                                     📅 {flight.date_range} • {flight.date_reason}
                                   </p>
                                 )}
-                                <p className="text-sm text-gray-600 mb-1">
+                                <p className="text-xs sm:text-sm text-gray-600 mb-1">
                                   {flight.duration} • {flight.stops === 0 ? 'Vuelo directo' : `${flight.stops} escala${flight.stops > 1 ? 's' : ''}`}
                                 </p>
-                                <div className="flex gap-2 text-xs text-gray-500">
+                                <div className="flex flex-wrap gap-1.5 sm:gap-2 text-xs text-gray-500">
                                   <span>✓ {flight.trip_type || 'Ida y vuelta'}</span>
-                                  <span>•</span>
+                                  <span className="hidden sm:inline">•</span>
                                   <span>🎒 {flight.baggage || '1 equipaje de mano'}</span>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-6">
-                              <div className="text-right">
-                                <p className="text-3xl font-bold text-green-600">€{Math.round(flight.price)}</p>
+                            <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6">
+                              <div className="text-left sm:text-right">
+                                <p className="text-2xl sm:text-3xl font-bold text-green-600">€{Math.round(flight.price)}</p>
                                 <p className="text-xs text-gray-500">por persona</p>
                               </div>
                               <a
                                 href={flight.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg whitespace-nowrap"
+                                className="px-5 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg whitespace-nowrap text-sm sm:text-base touch-manipulation"
                               >
                                 ¡Comprar!
                               </a>
@@ -366,13 +367,13 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Buscadores Alternativos */}
+                  {/* Buscadores Alternativos - Mobile Optimized */}
                   {itinerary.booking_links.flights.filter(f => f.type === 'search_alternative').length > 0 && (
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                    <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">
                         🔍 ¿Quieres ver más opciones?
                       </p>
-                      <p className="text-xs text-gray-600 mb-3">Explora otros buscadores para comparar</p>
+                      <p className="text-xs text-gray-600 mb-2 sm:mb-3">Explora otros buscadores para comparar</p>
                       <div className="grid grid-cols-2 gap-2">
                         {itinerary.booking_links.flights.filter(f => f.type === 'search_alternative').map((flight, index) => (
                           <a
@@ -380,10 +381,10 @@ export default function App() {
                             href={flight.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-3 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-300 hover:border-indigo-400"
+                            className="flex items-center gap-2 p-2.5 sm:p-3 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-300 hover:border-indigo-400 touch-manipulation active:bg-gray-50"
                           >
-                            <span className="text-lg">{flight.icon}</span>
-                            <span className="text-sm font-medium text-gray-900">{flight.name}</span>
+                            <span className="text-base sm:text-lg">{flight.icon}</span>
+                            <span className="text-xs sm:text-sm font-medium text-gray-900 truncate">{flight.name}</span>
                           </a>
                         ))}
                       </div>
@@ -391,68 +392,68 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Hoteles */}
-                <div className="mb-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                {/* Hoteles - Mobile Optimized */}
+                <div className="mb-4 sm:mb-6">
+                  <h4 className="text-base sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 flex items-center gap-2">
                     <span>🏨</span> Hoteles Recomendados
                   </h4>
 
-                  {/* Ofertas Reales */}
+                  {/* Ofertas Reales - Mobile Optimized */}
                   {itinerary.booking_links.hotels.filter(h => h.type === 'offer').length > 0 && (
-                    <div className="mb-6">
-                      <p className="text-sm text-gray-600 mb-3">💰 Mejores opciones para estas fechas:</p>
-                      <div className="space-y-4">
+                    <div className="mb-4 sm:mb-6">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">💰 Mejores opciones para estas fechas:</p>
+                      <div className="space-y-3 sm:space-y-4">
                         {itinerary.booking_links.hotels.filter(h => h.type === 'offer').map((hotel, index) => (
                           <div
                             key={index}
-                            className="p-5 bg-white rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all shadow-sm"
+                            className="p-4 sm:p-5 bg-white rounded-lg sm:rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all shadow-sm"
                           >
-                            <div className="flex items-start gap-4 mb-4">
-                              <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
-                                <span className="text-4xl">🏨</span>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+                              <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
+                                <span className="text-2xl sm:text-4xl">🏨</span>
                               </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <p className="text-lg font-bold text-gray-900">{hotel.name}</p>
-                                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                                  <p className="text-sm sm:text-lg font-bold text-gray-900">{hotel.name}</p>
+                                  <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded whitespace-nowrap">
                                     OPCIÓN {index + 1}
                                   </span>
                                 </div>
-                                <div className="flex items-center gap-3 text-sm text-gray-600 mb-2">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">
                                   {hotel.rating && hotel.rating > 0 && (
-                                    <span className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded">
+                                    <span className="flex items-center gap-1 bg-yellow-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                                       <span className="text-yellow-600 font-bold">{hotel.rating}/5</span>
-                                      <span>{' ⭐'.repeat(Math.round(hotel.rating))}</span>
+                                      <span className="hidden sm:inline">{' ⭐'.repeat(Math.round(hotel.rating))}</span>
                                     </span>
                                   )}
                                   {(hotel.location || hotel.city) && (
-                                    <span className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded">
+                                    <span className="flex items-center gap-1 bg-gray-100 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                                       <span>📍</span>
-                                      <span className="font-medium">{hotel.location || hotel.city}</span>
+                                      <span className="font-medium truncate">{hotel.location || hotel.city}</span>
                                     </span>
                                   )}
                                 </div>
                                 {hotel.room_description && (
-                                  <p className="text-sm text-gray-500 italic mb-2">
+                                  <p className="text-xs sm:text-sm text-gray-500 italic mb-1 sm:mb-2">
                                     {hotel.room_description}
                                   </p>
                                 )}
-                                <div className="flex items-baseline gap-2">
-                                  <span className="text-xl font-bold text-blue-600">€{Math.round(hotel.price_per_night)}</span>
-                                  <span className="text-sm text-gray-600">/noche • {hotel.nights} noches</span>
+                                <div className="flex items-baseline gap-1.5 sm:gap-2">
+                                  <span className="text-base sm:text-xl font-bold text-blue-600">€{Math.round(hotel.price_per_night)}</span>
+                                  <span className="text-xs sm:text-sm text-gray-600">/noche • {hotel.nights} noches</span>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                            <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-gray-200">
                               <div>
                                 <p className="text-xs text-gray-500">Precio total</p>
-                                <p className="text-2xl font-bold text-blue-600">€{Math.round(hotel.price_total)}</p>
+                                <p className="text-xl sm:text-2xl font-bold text-blue-600">€{Math.round(hotel.price_total)}</p>
                               </div>
                               <a
                                 href={hotel.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+                                className="px-5 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm sm:text-base touch-manipulation"
                               >
                                 ¡Reservar!
                               </a>
@@ -463,13 +464,13 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Buscadores Alternativos */}
+                  {/* Buscadores Alternativos - Mobile Optimized */}
                   {itinerary.booking_links.hotels.filter(h => h.type === 'search_alternative').length > 0 && (
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                    <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">
                         🔍 ¿Prefieres explorar más opciones?
                       </p>
-                      <p className="text-xs text-gray-600 mb-3">Busca en otras plataformas con fotos e imágenes</p>
+                      <p className="text-xs text-gray-600 mb-2 sm:mb-3">Busca en otras plataformas con fotos e imágenes</p>
                       <div className="grid grid-cols-2 gap-2">
                         {itinerary.booking_links.hotels.filter(h => h.type === 'search_alternative').map((hotel, index) => (
                           <a
@@ -477,10 +478,10 @@ export default function App() {
                             href={hotel.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-3 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-300 hover:border-blue-400"
+                            className="flex items-center gap-2 p-2.5 sm:p-3 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-300 hover:border-blue-400 touch-manipulation active:bg-gray-50"
                           >
-                            <span className="text-lg">{hotel.icon}</span>
-                            <span className="text-sm font-medium text-gray-900">{hotel.name}</span>
+                            <span className="text-base sm:text-lg">{hotel.icon}</span>
+                            <span className="text-xs sm:text-sm font-medium text-gray-900 truncate">{hotel.name}</span>
                           </a>
                         ))}
                       </div>
@@ -488,27 +489,27 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Actividades y Entradas */}
+                {/* Actividades y Entradas - Mobile Optimized */}
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center gap-2">
                     <span>🎫</span> Actividades y Entradas
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {itinerary.booking_links.activities.map((activity, index) => (
-                      <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                            <span className="text-xl">{activity.type === 'specific' ? '🏛️' : '🎯'}</span>
+                      <div key={index} className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
+                        <div className="flex items-start gap-2 sm:gap-3">
+                          <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span className="text-base sm:text-xl">{activity.type === 'specific' ? '🏛️' : '🎯'}</span>
                           </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-900">{activity.name}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm sm:text-base font-semibold text-gray-900">{activity.name}</p>
                             <p className="text-xs text-gray-600 mb-2">{activity.description}</p>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
                               <a
                                 href={activity.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium hover:bg-purple-200 transition-colors"
+                                className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium hover:bg-purple-200 transition-colors touch-manipulation"
                               >
                                 <span>Tours</span>
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -520,7 +521,7 @@ export default function App() {
                                   href={activity.url_official}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition-colors"
+                                  className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition-colors touch-manipulation"
                                 >
                                   <span>Web oficial</span>
                                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -536,28 +537,29 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                  <p className="text-sm text-blue-800">
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+                  <p className="text-xs sm:text-sm text-blue-800">
                     💡 <strong>Tip:</strong> Te recomendamos comparar precios en varios buscadores antes de reservar. Los links se abren en pestañas nuevas.
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 justify-center">
-              <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold transition-colors">
+            {/* Action Buttons - Mobile Optimized */}
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center">
+              <button className="px-5 sm:px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold transition-colors text-sm sm:text-base touch-manipulation">
                 Guardar Itinerario
               </button>
-              <button className="px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 font-semibold transition-colors">
+              <button className="px-5 sm:px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 font-semibold transition-colors text-sm sm:text-base touch-manipulation">
                 Compartir
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setItinerary(null);
                   setVideoUrl('');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors"
+                className="px-5 sm:px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors text-sm sm:text-base touch-manipulation"
               >
                 Analizar Otro Video
               </button>
@@ -565,37 +567,37 @@ export default function App() {
           </div>
         )}
 
-        {/* How it works */}
+        {/* How it works - Mobile Optimized */}
         {!itinerary && !loading && (
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-5 sm:p-8">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">
               ¿Cómo funciona?
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📱</span>
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <span className="text-xl sm:text-2xl">📱</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">1. Pega el Link</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">1. Pega el Link</h4>
+                <p className="text-gray-600 text-xs sm:text-sm">
                   Copia el enlace de cualquier video de viaje que te inspire
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🤖</span>
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <span className="text-xl sm:text-2xl">🤖</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">2. IA Analiza</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">2. IA Analiza</h4>
+                <p className="text-gray-600 text-xs sm:text-sm">
                   Nuestra IA identifica lugares, actividades y crea tu itinerario
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">✈️</span>
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <span className="text-xl sm:text-2xl">✈️</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">3. ¡A Viajar!</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">3. ¡A Viajar!</h4>
+                <p className="text-gray-600 text-xs sm:text-sm">
                   Recibe tu plan completo listo para reservar y disfrutar
                 </p>
               </div>
@@ -604,11 +606,11 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white mt-16 py-8 border-t">
-        <div className="max-w-6xl mx-auto px-4 text-center text-gray-600 text-sm">
+      {/* Footer - Mobile Optimized */}
+      <footer className="bg-white mt-8 sm:mt-16 py-6 sm:py-8 border-t">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 text-center text-gray-600 text-xs sm:text-sm">
           <p>InstaTrip - MVP © 2025</p>
-          <p className="mt-2">Convierte la inspiración en aventura</p>
+          <p className="mt-1 sm:mt-2">Convierte la inspiración en aventura</p>
         </div>
       </footer>
 
@@ -625,6 +627,52 @@ export default function App() {
         }
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Mobile optimizations */
+        * {
+          -webkit-tap-highlight-color: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Prevent zoom on input focus in iOS */
+        @media screen and (max-width: 640px) {
+          input[type="text"],
+          input[type="number"],
+          input[type="email"],
+          input[type="tel"],
+          input[type="url"],
+          textarea,
+          select {
+            font-size: 16px !important;
+          }
+        }
+
+        /* Smooth scrolling */
+        html {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        /* Safe area insets for devices with notch */
+        @supports (padding: max(0px)) {
+          body {
+            padding-left: max(0px, env(safe-area-inset-left));
+            padding-right: max(0px, env(safe-area-inset-right));
+            padding-bottom: max(0px, env(safe-area-inset-bottom));
+          }
+        }
+
+        /* Touch-friendly buttons */
+        .touch-manipulation {
+          touch-action: manipulation;
+          -webkit-user-select: none;
+          user-select: none;
+        }
+
+        /* Improve scrolling on iOS */
+        body {
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior-y: contain;
         }
       `}</style>
     </div>
