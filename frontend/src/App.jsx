@@ -260,140 +260,194 @@ export default function App() {
                   Haz clic en los enlaces para comparar precios y reservar
                 </p>
 
-                {/* Suggested Dates & Price Range */}
+                {/* Suggested Dates & Explanation */}
                 {itinerary.booking_links.suggested_dates && (
                   <div className="mb-6 p-5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Calendar className="w-5 h-5 text-indigo-600" />
-                          <h4 className="font-semibold text-gray-900">Fechas sugeridas:</h4>
-                        </div>
-                        <p className="text-xl text-indigo-600 font-bold">
-                          {new Date(itinerary.booking_links.suggested_dates.departure).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} - {new Date(itinerary.booking_links.suggested_dates.return).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          ({itinerary.booking_links.suggested_dates.duration_days} días)
-                        </p>
-                      </div>
-                      {itinerary.booking_links.price_info && (
-                        <div className="text-right pl-4">
-                          {itinerary.booking_links.price_info.flights && (
-                            <div className="mb-2">
-                              <p className="text-xs text-gray-600">Vuelos desde</p>
-                              <p className="text-lg font-bold text-green-600">
-                                {itinerary.booking_links.price_info.flights.currency}{Math.round(itinerary.booking_links.price_info.flights.min)}
-                              </p>
-                            </div>
-                          )}
-                          {itinerary.booking_links.price_info.hotels && (
-                            <div>
-                              <p className="text-xs text-gray-600">Hoteles desde</p>
-                              <p className="text-lg font-bold text-blue-600">
-                                {itinerary.booking_links.price_info.hotels.currency}{Math.round(itinerary.booking_links.price_info.hotels.min)}/noche
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                    <div className="flex items-center gap-2 mb-3">
+                      <Calendar className="w-6 h-6 text-indigo-600" />
+                      <h4 className="text-lg font-bold text-gray-900">Fechas Recomendadas</h4>
                     </div>
-                    {(itinerary.booking_links.price_info?.flights || itinerary.booking_links.price_info?.hotels) && (
-                      <div className="mt-3 pt-3 border-t border-indigo-200">
-                        <p className="text-xs text-gray-600 italic">
-                          💡 Precios orientativos. Los precios reales los verás en los buscadores a continuación.
-                        </p>
-                      </div>
-                    )}
+                    <p className="text-2xl text-indigo-600 font-bold mb-3">
+                      {new Date(itinerary.booking_links.suggested_dates.departure).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} - {new Date(itinerary.booking_links.suggested_dates.return).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                    <p className="text-sm text-gray-700 bg-white/70 p-3 rounded">
+                      {itinerary.booking_links.suggested_dates.explanation || `Viaje de ${itinerary.booking_links.suggested_dates.duration_days} días`}
+                    </p>
                   </div>
                 )}
 
                 {/* Vuelos */}
                 <div className="mb-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-                    <span>✈️</span> Busca tu Vuelo
+                  <h4 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span>✈️</span> Vuelos Disponibles
                   </h4>
-                  <p className="text-sm text-gray-600 mb-4">Compara precios reales en los mejores buscadores</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {itinerary.booking_links.flights.filter(f => f.type === 'search_main').map((flight, index) => (
-                      <a
-                        key={index}
-                        href={flight.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative p-5 bg-white rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:shadow-lg transition-all"
-                      >
-                        {flight.recommended && (
-                          <div className="absolute top-3 right-3">
-                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                              ⭐ Recomendado
-                            </span>
+                  {/* Ofertas Reales */}
+                  {itinerary.booking_links.flights.filter(f => f.type === 'offer').length > 0 && (
+                    <div className="mb-6">
+                      <p className="text-sm text-gray-600 mb-3">💰 Mejores precios para estas fechas:</p>
+                      <div className="space-y-3">
+                        {itinerary.booking_links.flights.filter(f => f.type === 'offer').map((flight, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-5 bg-white rounded-xl border-2 border-green-200 hover:border-green-400 transition-all shadow-sm"
+                          >
+                            <div className="flex items-center gap-4 flex-1">
+                              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                                <span className="text-3xl">✈️</span>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <p className="text-lg font-bold text-gray-900">{flight.airline}</p>
+                                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">
+                                    OPCIÓN {index + 1}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600">
+                                  {flight.duration} • {flight.stops === 0 ? 'Vuelo directo' : `${flight.stops} escala${flight.stops > 1 ? 's' : ''}`}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-6">
+                              <div className="text-right">
+                                <p className="text-3xl font-bold text-green-600">€{Math.round(flight.price)}</p>
+                                <p className="text-xs text-gray-500">por persona</p>
+                              </div>
+                              <a
+                                href={flight.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg whitespace-nowrap"
+                              >
+                                ¡Comprar!
+                              </a>
+                            </div>
                           </div>
-                        )}
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center text-3xl">
-                            {flight.icon || '✈️'}
-                          </div>
-                          <div className="flex-1">
-                            <h5 className="text-lg font-bold text-gray-900 mb-1">{flight.name}</h5>
-                            <p className="text-sm text-gray-600 mb-3">{flight.description}</p>
-                            <button className="w-full py-2 px-4 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold rounded-lg group-hover:from-indigo-600 group-hover:to-indigo-700 transition-all">
-                              Ver ofertas →
-                            </button>
-                          </div>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Buscadores Alternativos */}
+                  {itinerary.booking_links.flights.filter(f => f.type === 'search_alternative').length > 0 && (
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                        🔍 ¿Quieres ver más opciones?
+                      </p>
+                      <p className="text-xs text-gray-600 mb-3">Explora otros buscadores para comparar</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {itinerary.booking_links.flights.filter(f => f.type === 'search_alternative').map((flight, index) => (
+                          <a
+                            key={index}
+                            href={flight.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-3 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-300 hover:border-indigo-400"
+                          >
+                            <span className="text-lg">{flight.icon}</span>
+                            <span className="text-sm font-medium text-gray-900">{flight.name}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Hoteles */}
                 <div className="mb-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-                    <span>🏨</span> Busca tu Alojamiento
+                  <h4 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span>🏨</span> Hoteles Recomendados
                   </h4>
-                  <p className="text-sm text-gray-600 mb-4">Encuentra hoteles con fotos reales, opiniones y precios verificados</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {itinerary.booking_links.hotels.filter(h => h.type === 'search_main').map((hotel, index) => (
-                      <a
-                        key={index}
-                        href={hotel.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative p-5 bg-white rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:shadow-lg transition-all"
-                      >
-                        {hotel.recommended && (
-                          <div className="absolute top-3 right-3">
-                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                              ⭐ Recomendado
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex items-start gap-4 mb-3">
-                          <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-3xl">
-                            {hotel.icon || '🏨'}
-                          </div>
-                          <div className="flex-1">
-                            <h5 className="text-lg font-bold text-gray-900 mb-1">{hotel.name}</h5>
-                            <p className="text-sm text-gray-600 mb-2">{hotel.description}</p>
-                            {hotel.features && (
-                              <div className="flex flex-wrap gap-1 mb-3">
-                                {hotel.features.map((feature, idx) => (
-                                  <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
-                                    {feature}
-                                  </span>
-                                ))}
+                  {/* Ofertas Reales */}
+                  {itinerary.booking_links.hotels.filter(h => h.type === 'offer').length > 0 && (
+                    <div className="mb-6">
+                      <p className="text-sm text-gray-600 mb-3">💰 Mejores opciones para estas fechas:</p>
+                      <div className="space-y-4">
+                        {itinerary.booking_links.hotels.filter(h => h.type === 'offer').map((hotel, index) => (
+                          <div
+                            key={index}
+                            className="p-5 bg-white rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all shadow-sm"
+                          >
+                            <div className="flex items-start gap-4 mb-4">
+                              <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
+                                <span className="text-4xl">🏨</span>
                               </div>
-                            )}
-                            <button className="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg group-hover:from-blue-600 group-hover:to-blue-700 transition-all">
-                              Ver hoteles →
-                            </button>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <p className="text-lg font-bold text-gray-900">{hotel.name}</p>
+                                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded">
+                                    OPCIÓN {index + 1}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-gray-600 mb-2">
+                                  {hotel.rating && hotel.rating > 0 && (
+                                    <span className="flex items-center gap-1">
+                                      <span className="text-yellow-500 font-bold">{hotel.rating}/5</span>
+                                      <span>{' ⭐'.repeat(Math.round(hotel.rating))}</span>
+                                    </span>
+                                  )}
+                                  {hotel.city && (
+                                    <span className="flex items-center gap-1">
+                                      <span>📍</span>
+                                      <span>{hotel.city}</span>
+                                    </span>
+                                  )}
+                                </div>
+                                {hotel.room_description && (
+                                  <p className="text-sm text-gray-500 italic mb-2">
+                                    {hotel.room_description}
+                                  </p>
+                                )}
+                                <div className="flex items-baseline gap-2">
+                                  <span className="text-xl font-bold text-blue-600">€{Math.round(hotel.price_per_night)}</span>
+                                  <span className="text-sm text-gray-600">/noche • {hotel.nights} noches</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                              <div>
+                                <p className="text-xs text-gray-500">Precio total</p>
+                                <p className="text-2xl font-bold text-blue-600">€{Math.round(hotel.price_total)}</p>
+                              </div>
+                              <a
+                                href={hotel.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+                              >
+                                ¡Reservar!
+                              </a>
+                            </div>
                           </div>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Buscadores Alternativos */}
+                  {itinerary.booking_links.hotels.filter(h => h.type === 'search_alternative').length > 0 && (
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                        🔍 ¿Prefieres explorar más opciones?
+                      </p>
+                      <p className="text-xs text-gray-600 mb-3">Busca en otras plataformas con fotos e imágenes</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {itinerary.booking_links.hotels.filter(h => h.type === 'search_alternative').map((hotel, index) => (
+                          <a
+                            key={index}
+                            href={hotel.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-3 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-300 hover:border-blue-400"
+                          >
+                            <span className="text-lg">{hotel.icon}</span>
+                            <span className="text-sm font-medium text-gray-900">{hotel.name}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Actividades y Entradas */}

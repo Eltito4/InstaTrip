@@ -246,6 +246,17 @@ def generate_booking_links(itinerary):
     departure_str = start_date.strftime('%Y-%m-%d')
     return_str = end_date.strftime('%Y-%m-%d')
 
+    # Generar explicación de por qué esta fecha
+    month_name = start_date.strftime('%B')
+    month_name_es = {
+        'January': 'enero', 'February': 'febrero', 'March': 'marzo',
+        'April': 'abril', 'May': 'mayo', 'June': 'junio',
+        'July': 'julio', 'August': 'agosto', 'September': 'septiembre',
+        'October': 'octubre', 'November': 'noviembre', 'December': 'diciembre'
+    }.get(month_name, month_name.lower())
+
+    date_explanation = f"📅 Recomendamos estas fechas por varios motivos: reservar con 2 meses de anticipación suele ofrecer los mejores precios, {month_name_es} es buena época para visitar {destination}, y tienes tiempo suficiente para planificar tu viaje."
+
     links = {
         'flights': [],
         'hotels': [],
@@ -253,119 +264,111 @@ def generate_booking_links(itinerary):
         'suggested_dates': {
             'departure': departure_str,
             'return': return_str,
-            'duration_days': duration_days
+            'duration_days': duration_days,
+            'explanation': date_explanation
         }
     }
 
-    # === CONSULTAR PRECIOS ORIENTATIVOS ===
-    price_info = {'flights': None, 'hotels': None}
-
+    # === OBTENER OFERTAS REALES DE VUELOS ===
     if airport_code and AMADEUS_API_KEY:
-        print(f"💰 Consultando precios orientativos de vuelos a {airport_code}...")
+        print(f"💰 Buscando ofertas reales de vuelos a {airport_code}...")
         flight_offers = search_flights_amadeus('MAD', airport_code, departure_str, return_str)
-        if flight_offers:
-            prices = [f['price'] for f in flight_offers]
-            price_info['flights'] = {
-                'min': min(prices),
-                'max': max(prices),
-                'currency': flight_offers[0]['currency']
-            }
-            print(f"   Rango de precios: {price_info['flights']['currency']}{price_info['flights']['min']} - {price_info['flights']['currency']}{price_info['flights']['max']}")
 
-    links['price_info'] = price_info
+        for idx, flight in enumerate(flight_offers[:3], 1):  # Máximo 3 ofertas
+            # URL para reservar (Google Flights con parámetros específicos)
+            booking_url = f"https://www.google.com/travel/flights?hl=es&gl=ES&q=flights+from+MAD+to+{airport_code}+on+{departure_str}+return+{return_str}"
 
-    # === BUSCADORES DE VUELOS (donde verás precios reales) ===
+            links['flights'].append({
+                'type': 'offer',  # Oferta real con precio
+                'rank': idx,
+                'airline': flight['airline'],
+                'price': flight['price'],
+                'currency': flight['currency'],
+                'duration': flight['duration'],
+                'direct': flight['direct'],
+                'stops': flight['stops'],
+                'url': booking_url,
+                'name': f"{flight['airline']} - €{flight['price']:.0f}",
+                'description': f"{flight['duration']}, {'Directo' if flight['direct'] else f'{flight['stops']} escala(s)'}"
+            })
+            print(f"   ✈️  Opción {idx}: {flight['airline']} - €{flight['price']:.0f} ({flight['duration']})")
+
+    # === BUSCADORES ALTERNATIVOS DE VUELOS ===
     destination_clean = destination.replace(',', '').strip()
 
-    # Google Flights con fechas prellenadas
+    # Google Flights
     google_flights = f"https://www.google.com/travel/flights?hl=es&gl=ES&q=flights+from+MAD+to+{airport_code if airport_code else quote(destination_clean)}+on+{departure_str}+return+{return_str}"
     links['flights'].append({
-        'type': 'search_main',
+        'type': 'search_alternative',
         'name': 'Google Flights',
         'url': google_flights,
-        'description': 'Compara TODAS las aerolíneas - Precios reales',
-        'icon': '✈️',
-        'recommended': True
+        'description': 'Compara todas las aerolíneas',
+        'icon': '✈️'
     })
 
-    # Skyscanner con fechas
+    # Skyscanner
     if airport_code:
         skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{airport_code.lower()}/{departure_str.replace('-', '')}/{return_str.replace('-', '')}/?adultsv2=2&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=1"
     else:
         skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{quote(destination_clean)}/"
 
     links['flights'].append({
-        'type': 'search_main',
+        'type': 'search_alternative',
         'name': 'Skyscanner',
         'url': skyscanner,
-        'description': 'Encuentra las mejores ofertas',
-        'icon': '🔍',
-        'recommended': True
+        'description': 'Encuentra más ofertas',
+        'icon': '🔍'
     })
 
-    # Kayak
-    kayak = f"https://www.kayak.es/flights/MAD-{airport_code if airport_code else quote(destination_clean)}/{departure_str}/{return_str}"
-    links['flights'].append({
-        'type': 'search_main',
-        'name': 'Kayak',
-        'url': kayak,
-        'description': 'Compara precios en cientos de sitios',
-        'icon': '🌐',
-        'recommended': False
-    })
-
-    # === CONSULTAR PRECIOS ORIENTATIVOS DE HOTELES ===
+    # === OBTENER OFERTAS REALES DE HOTELES ===
     if city_code and AMADEUS_API_KEY:
-        print(f"💰 Consultando precios orientativos de hoteles en {city_code}...")
+        print(f"💰 Buscando ofertas reales de hoteles en {city_code}...")
         hotel_offers = search_hotels_amadeus(city_code, departure_str, return_str)
-        if hotel_offers:
-            prices_per_night = [h['price_per_night'] for h in hotel_offers]
-            price_info['hotels'] = {
-                'min': min(prices_per_night),
-                'max': max(prices_per_night),
-                'currency': hotel_offers[0]['currency']
-            }
-            print(f"   Rango de precios: {price_info['hotels']['currency']}{price_info['hotels']['min']:.0f} - {price_info['hotels']['currency']}{price_info['hotels']['max']:.0f} por noche")
 
-    links['price_info'] = price_info
+        for idx, hotel in enumerate(hotel_offers[:3], 1):  # Máximo 3 ofertas
+            stars = '⭐' * hotel['rating'] if hotel['rating'] > 0 else ''
 
-    # === BUSCADORES DE HOTELES (donde verás hoteles reales con imágenes y precios) ===
+            # URL para reservar (Booking.com con ciudad y fechas)
+            city_for_booking = city.replace(',', '').strip()
+            booking_url = f"https://www.booking.com/searchresults.html?ss={quote(city_for_booking)}&checkin={departure_str}&checkout={return_str}&group_adults=2&no_rooms=1"
+
+            links['hotels'].append({
+                'type': 'offer',  # Oferta real con precio
+                'rank': idx,
+                'name': hotel['name'],
+                'price_per_night': hotel['price_per_night'],
+                'price_total': hotel['price_total'],
+                'currency': hotel['currency'],
+                'rating': hotel['rating'],
+                'nights': hotel['nights'],
+                'city': hotel.get('city', ''),
+                'room_description': hotel.get('description', 'Habitación estándar'),
+                'url': booking_url,
+                'description': f"€{hotel['price_per_night']:.0f}/noche ({hotel['nights']} noches) {stars}"
+            })
+            print(f"   🏨 Opción {idx}: {hotel['name']} - €{hotel['price_per_night']:.0f}/noche ({hotel['rating']} estrellas)")
+
+    # === BUSCADORES ALTERNATIVOS DE HOTELES ===
     city_clean = city.replace(',', '').strip()
 
-    # Booking.com con fechas prellenadas
+    # Booking.com
     booking = f"https://www.booking.com/searchresults.html?ss={quote(city_clean)}&checkin={departure_str}&checkout={return_str}&group_adults=2&no_rooms=1&group_children=0"
     links['hotels'].append({
-        'type': 'search_main',
+        'type': 'search_alternative',
         'name': 'Booking.com',
         'url': booking,
-        'description': 'Ver hoteles con fotos y precios reales',
-        'icon': '🏨',
-        'recommended': True,
-        'features': ['Fotos reales', 'Opiniones verificadas', 'Cancelación gratis']
+        'description': 'Miles de hoteles con fotos y opiniones',
+        'icon': '🏨'
     })
 
-    # Airbnb con fechas
+    # Airbnb
     airbnb = f"https://www.airbnb.es/s/{quote(city_clean)}/homes?checkin={departure_str}&checkout={return_str}&adults=2"
     links['hotels'].append({
-        'type': 'search_main',
+        'type': 'search_alternative',
         'name': 'Airbnb',
         'url': airbnb,
-        'description': 'Apartamentos y casas completas',
-        'icon': '🏠',
-        'recommended': True,
-        'features': ['Fotos 360°', 'Cocina propia', 'Experiencias locales']
-    })
-
-    # TripAdvisor
-    tripadvisor = f"https://www.tripadvisor.es/Hotels-g{quote(city_clean)}-Hotels.html"
-    links['hotels'].append({
-        'type': 'search_main',
-        'name': 'TripAdvisor',
-        'url': tripadvisor,
-        'description': 'Compara precios y lee opiniones',
-        'icon': '🦉',
-        'recommended': False,
-        'features': ['Opiniones reales', 'Comparador de precios']
+        'description': 'Apartamentos y experiencias únicas',
+        'icon': '🏠'
     })
 
     # === ACTIVIDADES Y ENTRADAS ===
