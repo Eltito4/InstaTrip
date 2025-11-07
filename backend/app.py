@@ -11,6 +11,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import quote
 from datetime import datetime, timedelta
+import requests
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -22,67 +23,303 @@ CORS(app)
 anthropic_client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
+# Configuración de Amadeus
+AMADEUS_API_KEY = os.environ.get("AMADEUS_API_KEY")
+AMADEUS_API_SECRET = os.environ.get("AMADEUS_API_SECRET")
+amadeus_token = None
+amadeus_token_expires = None
+
+def get_amadeus_token():
+    """Obtiene el token de autenticación de Amadeus (OAuth)"""
+    global amadeus_token, amadeus_token_expires
+
+    # Si tenemos un token válido, reutilizarlo
+    if amadeus_token and amadeus_token_expires and datetime.now() < amadeus_token_expires:
+        return amadeus_token
+
+    try:
+        url = "https://test.api.amadeus.com/v1/security/oauth2/token"
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        data = {
+            "grant_type": "client_credentials",
+            "client_id": AMADEUS_API_KEY,
+            "client_secret": AMADEUS_API_SECRET
+        }
+
+        response = requests.post(url, headers=headers, data=data)
+        response.raise_for_status()
+
+        token_data = response.json()
+        amadeus_token = token_data['access_token']
+        # El token expira en ~30 minutos, guardamos el tiempo
+        amadeus_token_expires = datetime.now() + timedelta(seconds=token_data.get('expires_in', 1800) - 60)
+
+        return amadeus_token
+
+    except Exception as e:
+        print(f"Error obteniendo token de Amadeus: {str(e)}")
+        return None
+
+def search_flights_amadeus(origin, destination, departure_date, return_date, adults=1):
+    """Busca vuelos con Amadeus API y devuelve las 2 opciones más baratas"""
+    try:
+        token = get_amadeus_token()
+        if not token:
+            return []
+
+        url = "https://test.api.amadeus.com/v2/shopping/flight-offers"
+        headers = {"Authorization": f"Bearer {token}"}
+        params = {
+            "originLocationCode": origin,
+            "destinationLocationCode": destination,
+            "departureDate": departure_date,
+            "returnDate": return_date,
+            "adults": adults,
+            "max": 5  # Traer 5 para elegir los 2 mejores
+        }
+
+        print(f"🔍 Buscando vuelos {origin} → {destination} ({departure_date} - {return_date})...")
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+
+        if response.status_code != 200:
+            print(f"⚠️  Error API Amadeus vuelos: {response.status_code}")
+            return []
+
+        data = response.json()
+        offers = data.get('data', [])
+
+        if not offers:
+            print("⚠️  No se encontraron vuelos")
+            return []
+
+        # Procesar y ordenar por precio
+        flight_options = []
+        for offer in offers[:2]:  # Solo los 2 primeros (ya vienen ordenados por precio)
+            price = float(offer['price']['total'])
+            currency = offer['price']['currency']
+
+            # Obtener información del vuelo
+            itineraries = offer.get('itineraries', [])
+            if itineraries:
+                first_segment = itineraries[0]['segments'][0]
+                airline_code = first_segment['carrierCode']
+                duration = itineraries[0].get('duration', 'N/A')
+                stops = len(itineraries[0]['segments']) - 1
+
+                # Formatear duración (viene como PT2H30M)
+                duration_formatted = duration.replace('PT', '').replace('H', 'h ').replace('M', 'min')
+
+                flight_options.append({
+                    'airline': airline_code,
+                    'price': price,
+                    'currency': currency,
+                    'duration': duration_formatted,
+                    'stops': stops,
+                    'direct': stops == 0
+                })
+
+        print(f"✅ Encontrados {len(flight_options)} vuelos")
+        return flight_options
+
+    except Exception as e:
+        print(f"Error buscando vuelos: {str(e)}")
+        return []
+
+def search_hotels_amadeus(city_code, checkin, checkout):
+    """Busca hoteles con Amadeus API y devuelve las 2 opciones más baratas"""
+    try:
+        token = get_amadeus_token()
+        if not token:
+            return []
+
+        # Primero buscar hoteles en la ciudad
+        url_search = "https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city"
+        headers = {"Authorization": f"Bearer {token}"}
+        params_search = {"cityCode": city_code}
+
+        print(f"🔍 Buscando hoteles en {city_code} ({checkin} - {checkout})...")
+        response_search = requests.get(url_search, headers=headers, params=params_search, timeout=10)
+
+        if response_search.status_code != 200:
+            print(f"⚠️  Error API Amadeus hoteles search: {response_search.status_code}")
+            return []
+
+        hotels_data = response_search.json().get('data', [])
+        if not hotels_data:
+            print("⚠️  No se encontraron hoteles")
+            return []
+
+        # Obtener IDs de los primeros 10 hoteles
+        hotel_ids = [h['hotelId'] for h in hotels_data[:10]]
+
+        # Buscar ofertas para esos hoteles
+        url_offers = "https://test.api.amadeus.com/v3/shopping/hotel-offers"
+        params_offers = {
+            "hotelIds": ','.join(hotel_ids),
+            "checkInDate": checkin,
+            "checkOutDate": checkout,
+            "adults": 2,
+            "roomQuantity": 1
+        }
+
+        response_offers = requests.get(url_offers, headers=headers, params=params_offers, timeout=10)
+
+        if response_offers.status_code != 200:
+            print(f"⚠️  Error API Amadeus hotel offers: {response_offers.status_code}")
+            return []
+
+        offers_data = response_offers.json().get('data', [])
+
+        # Procesar y ordenar por precio
+        hotel_options = []
+        for hotel in offers_data:
+            if not hotel.get('offers'):
+                continue
+
+            hotel_name = hotel['hotel'].get('name', 'Hotel')
+            rating = hotel['hotel'].get('rating', 0)
+
+            # Obtener la oferta más barata
+            offer = sorted(hotel['offers'], key=lambda x: float(x['price']['total']))[0]
+            price_total = float(offer['price']['total'])
+            currency = offer['price']['currency']
+
+            # Calcular precio por noche
+            checkin_date = datetime.strptime(checkin, '%Y-%m-%d')
+            checkout_date = datetime.strptime(checkout, '%Y-%m-%d')
+            nights = (checkout_date - checkin_date).days
+            price_per_night = price_total / nights if nights > 0 else price_total
+
+            hotel_options.append({
+                'name': hotel_name,
+                'price_per_night': round(price_per_night, 2),
+                'price_total': round(price_total, 2),
+                'currency': currency,
+                'rating': int(rating) if rating else 0,
+                'nights': nights
+            })
+
+        # Ordenar por precio y tomar los 2 más baratos
+        hotel_options.sort(key=lambda x: x['price_per_night'])
+        result = hotel_options[:2]
+
+        print(f"✅ Encontrados {len(result)} hoteles")
+        return result
+
+    except Exception as e:
+        print(f"Error buscando hoteles: {str(e)}")
+        return []
+
 def generate_booking_links(itinerary):
-    """Genera links automáticos a buscadores de vuelos, hoteles y actividades"""
+    """Genera links automáticos a buscadores Y busca ofertas reales con Amadeus"""
 
     destination = itinerary.get('destination', '')
-    city = itinerary.get('city', destination)  # Ciudad específica
+    city = itinerary.get('city', destination)
+    airport_code = itinerary.get('airport_code', '').upper()
+    city_code = itinerary.get('city_code', airport_code).upper()  # Para hoteles
 
     # Si no hay ciudad, usar el destino
     if not city:
         city = destination
 
+    # Calcular fechas (viaje en 2 meses)
+    start_date = datetime.now() + timedelta(days=60)
+    duration_str = itinerary.get('duration', '5 días')
+    duration_days = int(re.search(r'\d+', duration_str).group()) if re.search(r'\d+', duration_str) else 5
+    end_date = start_date + timedelta(days=duration_days)
+
+    departure_str = start_date.strftime('%Y-%m-%d')
+    return_str = end_date.strftime('%Y-%m-%d')
+
     links = {
         'flights': [],
         'hotels': [],
-        'activities': []
+        'activities': [],
+        'suggested_dates': {
+            'departure': departure_str,
+            'return': return_str,
+            'duration_days': duration_days
+        }
     }
 
-    # === VUELOS ===
-    # Links sin fechas - usuario elige en el buscador
+    # === VUELOS CON PRECIOS REALES ===
+    if airport_code and AMADEUS_API_KEY:
+        print(f"💰 Buscando precios reales de vuelos a {airport_code}...")
+        flight_offers = search_flights_amadeus('MAD', airport_code, departure_str, return_str)
+
+        for idx, flight in enumerate(flight_offers, 1):
+            links['flights'].append({
+                'type': 'offer',  # Oferta real con precio
+                'rank': idx,
+                'airline': flight['airline'],
+                'price': flight['price'],
+                'currency': flight['currency'],
+                'duration': flight['duration'],
+                'direct': flight['direct'],
+                'stops': flight['stops'],
+                'name': f"{flight['airline']} - {flight['currency']}{flight['price']:.0f}",
+                'description': f"{flight['duration']}, {'directo' if flight['direct'] else f'{flight['stops']} escala(s)'}"
+            })
+
+    # === LINKS A BUSCADORES (fallback o para ver más opciones) ===
     destination_clean = destination.replace(',', '').strip()
 
-    # Google Flights - búsqueda abierta
+    # Google Flights
     google_flights = f"https://www.google.com/travel/flights?q=flights%20to%20{quote(destination_clean)}"
     links['flights'].append({
-        'name': 'Google Flights',
+        'type': 'search_link',
+        'name': 'Ver más vuelos',
         'url': google_flights,
-        'description': 'Compara precios de múltiples aerolíneas - Elige tus fechas'
+        'description': 'Google Flights - Compara y elige tus fechas'
     })
 
-    # Skyscanner - búsqueda abierta
+    # Skyscanner
     skyscanner = f"https://www.skyscanner.es/transport/flights/mad/{quote(destination_clean)}/"
     links['flights'].append({
-        'name': 'Skyscanner',
+        'type': 'search_link',
+        'name': 'Comparar en Skyscanner',
         'url': skyscanner,
-        'description': 'Encuentra las mejores ofertas - Elige tus fechas'
+        'description': 'Encuentra más ofertas'
     })
 
-    # === HOTELES ===
+    # === HOTELES CON PRECIOS REALES ===
+    if city_code and AMADEUS_API_KEY:
+        print(f"💰 Buscando precios reales de hoteles en {city_code}...")
+        hotel_offers = search_hotels_amadeus(city_code, departure_str, return_str)
+
+        for idx, hotel in enumerate(hotel_offers, 1):
+            stars = '⭐' * hotel['rating'] if hotel['rating'] > 0 else ''
+            links['hotels'].append({
+                'type': 'offer',  # Oferta real con precio
+                'rank': idx,
+                'name': f"{hotel['name']}",
+                'price_per_night': hotel['price_per_night'],
+                'price_total': hotel['price_total'],
+                'currency': hotel['currency'],
+                'rating': hotel['rating'],
+                'nights': hotel['nights'],
+                'description': f"{hotel['currency']}{hotel['price_per_night']:.0f}/noche ({hotel['nights']} noches) {stars}"
+            })
+
+    # === LINKS A BUSCADORES (fallback o para ver más opciones) ===
     city_clean = city.replace(',', '').strip()
 
-    # Booking.com - búsqueda abierta
+    # Booking.com
     booking = f"https://www.booking.com/searchresults.es.html?ss={quote(city_clean)}"
     links['hotels'].append({
-        'name': 'Booking.com',
+        'type': 'search_link',
+        'name': 'Ver más hoteles',
         'url': booking,
-        'description': 'Miles de hoteles - Selecciona tus fechas'
+        'description': 'Booking.com - Miles de opciones'
     })
 
-    # Airbnb - búsqueda abierta
+    # Airbnb
     airbnb = f"https://www.airbnb.es/s/{quote(city_clean)}/homes"
     links['hotels'].append({
-        'name': 'Airbnb',
+        'type': 'search_link',
+        'name': 'Buscar en Airbnb',
         'url': airbnb,
-        'description': 'Alojamientos únicos - Elige tus fechas'
-    })
-
-    # Hotels.com - búsqueda abierta
-    hotelscom = f"https://es.hotels.com/search.do?q-destination={quote(city_clean)}"
-    links['hotels'].append({
-        'name': 'Hotels.com',
-        'url': hotelscom,
-        'description': 'Recompensas por reservas - Selecciona fechas'
+        'description': 'Alojamientos únicos'
     })
 
     # === ACTIVIDADES Y ENTRADAS ===
@@ -253,7 +490,8 @@ Genera un JSON con la siguiente estructura EXACTA (sin texto adicional, solo el 
   "destination": "Nombre del destino mencionado en el video",
   "city": "Ciudad principal del destino",
   "country": "País",
-  "airport_code": "Código IATA del aeropuerto principal (ej: BCN, MAD, NYC) - déjalo vacío si no lo sabes",
+  "airport_code": "Código IATA del aeropuerto principal (3 letras: BCN, MAD, NYC, TAS, etc.)",
+  "city_code": "Código IATA de la ciudad (3 letras - mismo que airport_code normalmente)",
   "description": "Breve descripción basada en lo que se dice en el video (1-2 líneas)",
   "duration": "X días",
   "budget": "€X - €Y por persona (orientativo)",
