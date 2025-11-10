@@ -94,8 +94,6 @@ export default function HomeScreen({ route, navigation }) {
             placeholder="https://www.tiktok.com/@usuario/video/..."
             placeholderTextColor="#9CA3AF"
             editable={!loading}
-            autoCapitalize="none"
-            autoCorrect={false}
           />
 
           {/* Button */}

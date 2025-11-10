@@ -215,7 +215,6 @@ export default function LandingScreen({ navigation }) {
                     placeholder="tu@email.com"
                     placeholderTextColor="#9CA3AF"
                     keyboardType="email-address"
-                    autoCapitalize="none"
                   />
                 </View>
 
