@@ -72,8 +72,8 @@ export default function LandingScreen({ navigation }) {
               <LinearGradient
                 colors={['#A855F7', '#EC4899']}
                 style={styles.ctaGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                start={[0, 0]}
+                end={[1, 0]}
               >
                 <Text style={styles.ctaText}>Empezar Gratis →</Text>
               </LinearGradient>
@@ -141,8 +141,8 @@ export default function LandingScreen({ navigation }) {
             <LinearGradient
               colors={['#9333EA', '#DB2777', '#2563EB']}
               style={styles.finalCTAGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={[0, 0]}
+              end={[1, 0]}
             >
               <Text style={styles.finalCTATitle}>
                 ¿Listo para tu próxima aventura?
@@ -238,8 +238,8 @@ export default function LandingScreen({ navigation }) {
                   <LinearGradient
                     colors={['#A855F7', '#EC4899']}
                     style={styles.submitGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
+                    start={[0, 0]}
+                    end={[1, 0]}
                   >
                     <Text style={styles.submitText}>
                       {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}

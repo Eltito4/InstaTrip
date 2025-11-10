@@ -108,8 +108,8 @@ export default function HomeScreen({ route, navigation }) {
             <LinearGradient
               colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#6366F1', '#8B5CF6']}
               style={styles.analyzeGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={[0, 0]}
+              end={[1, 0]}
             >
               {loading ? (
                 <View style={styles.buttonContent}>
