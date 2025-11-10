@@ -227,7 +227,7 @@ export default function LandingScreen({ navigation }) {
                     onChangeText={setPassword}
                     placeholder="••••••••"
                     placeholderTextColor="#9CA3AF"
-                    secureTextEntry
+                    secureTextEntry={true}
                   />
                 </View>
 
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   featuresList: {
-    gap: 32,
+    
   },
   feature: {
     alignItems: 'center',
@@ -479,10 +479,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   form: {
-    gap: 16,
+    
   },
   inputGroup: {
-    gap: 8,
+    
   },
   inputLabel: {
     fontSize: 14,

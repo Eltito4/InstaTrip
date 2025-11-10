@@ -13,7 +13,6 @@ export default function App() {
         initialRouteName="Landing"
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
         }}
       >
         <Stack.Screen name="Landing" component={LandingScreen} />

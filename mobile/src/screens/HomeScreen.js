@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerLeft: {
-    gap: 4,
+    flexDirection: 'column',
   },
   logoText: {
     fontSize: 20,
@@ -208,6 +208,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 12,
     color: '#6B7280',
+    marginTop: 2,
   },
   logoutText: {
     fontSize: 14,
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
-    gap: 20,
+    
   },
   card: {
     backgroundColor: 'white',
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
   buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    
   },
   analyzeText: {
     color: 'white',
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   platforms: {
-    gap: 4,
+    
   },
   platformsTitle: {
     fontSize: 13,
@@ -317,11 +318,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   steps: {
-    gap: 20,
+    
   },
   step: {
     flexDirection: 'row',
-    gap: 16,
+    
   },
   stepIcon: {
     width: 56,
@@ -336,7 +337,7 @@ const styles = StyleSheet.create({
   },
   stepContent: {
     flex: 1,
-    gap: 4,
+    
   },
   stepTitle: {
     fontSize: 16,
