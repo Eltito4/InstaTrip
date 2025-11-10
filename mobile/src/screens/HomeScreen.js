@@ -55,7 +55,7 @@ export default function HomeScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar />
 
       {/* Header */}
       <LinearGradient
@@ -101,7 +101,6 @@ export default function HomeScreen({ route, navigation }) {
             style={[styles.analyzeButton, loading && styles.analyzeButtonDisabled]}
             onPress={handleAnalyze}
             disabled={loading}
-            activeOpacity={0.8}
           >
             <LinearGradient
               colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#6366F1', '#8B5CF6']}
