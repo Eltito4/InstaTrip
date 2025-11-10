@@ -1,0 +1,64 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo circular suave -->
+  <circle cx="100" cy="100" r="95" fill="#F8F5FF"/>
+
+  <!-- Avión estilizado con degradado pastel -->
+  <defs>
+    <linearGradient id="planeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A8B8FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C8A8FF;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFB8D8;stop-opacity:0.6" />
+      <stop offset="50%" style="stop-color:#FFC8A8;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#FFE8A8;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Trayectoria del avión (línea punteada) -->
+  <path d="M 50 120 Q 70 80, 100 85 T 150 80"
+        stroke="url(#pathGradient)"
+        stroke-width="4"
+        stroke-dasharray="8,6"
+        fill="none"
+        stroke-linecap="round"/>
+
+  <!-- Pin de ubicación (destino) -->
+  <g transform="translate(145, 65)">
+    <ellipse cx="0" cy="8" rx="8" ry="3" fill="#FFB8D8" opacity="0.3"/>
+    <path d="M 0,-10 C -6,-10 -10,-6 -10,0 C -10,4 0,12 0,12 C 0,12 10,4 10,0 C 10,-6 6,-10 0,-10 Z"
+          fill="#FFB8D8"/>
+    <circle cx="0" cy="0" r="3.5" fill="white"/>
+  </g>
+
+  <!-- Avión (simplificado y moderno) -->
+  <g transform="translate(100, 85) rotate(15)">
+    <!-- Cuerpo del avión -->
+    <ellipse cx="0" cy="0" rx="18" ry="6" fill="url(#planeGradient)"/>
+    <circle cx="10" cy="0" r="5" fill="url(#planeGradient)"/>
+
+    <!-- Alas -->
+    <ellipse cx="-5" cy="0" rx="8" ry="16" fill="url(#planeGradient)" opacity="0.9"/>
+
+    <!-- Cola -->
+    <path d="M -15,-1 L -20,-6 L -18,-1 L -20,4 Z" fill="url(#planeGradient)"/>
+
+    <!-- Ventanas -->
+    <circle cx="2" cy="0" r="1.5" fill="white" opacity="0.7"/>
+    <circle cx="6" cy="0" r="1.5" fill="white" opacity="0.7"/>
+
+    <!-- Sombra suave -->
+    <ellipse cx="0" cy="20" rx="16" ry="3" fill="#A8B8FF" opacity="0.15"/>
+  </g>
+
+  <!-- Estrellitas decorativas -->
+  <g opacity="0.6">
+    <path d="M 60 50 L 61 52 L 63 52 L 61 53 L 62 55 L 60 54 L 58 55 L 59 53 L 57 52 L 59 52 Z" fill="#FFD8B8"/>
+    <path d="M 140 115 L 141 117 L 143 117 L 141 118 L 142 120 L 140 119 L 138 120 L 139 118 L 137 117 L 139 117 Z" fill="#B8E8FF"/>
+    <path d="M 125 50 L 126 52 L 128 52 L 126 53 L 127 55 L 125 54 L 123 55 L 124 53 L 122 52 L 124 52 Z" fill="#FFB8E8"/>
+  </g>
+
+  <!-- Texto sutil (opcional) -->
+  <text x="100" y="165" font-family="Arial, sans-serif" font-size="24" font-weight="600" fill="#A8B8FF" text-anchor="middle">InstaTrip</text>
+</svg>

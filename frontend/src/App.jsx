@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plane, Loader2, MapPin, Calendar, DollarSign, Clock } from 'lucide-react';
 
-export default function App() {
+export default function App({ user, onLogout }) {
   const [videoUrl, setVideoUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [itinerary, setItinerary] = useState(null);
@@ -105,12 +105,24 @@ export default function App() {
       {/* Header - Mobile Optimized */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Plane className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600" />
-            <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-gray-900">InstaTrip</h1>
-              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Convierte videos de viajes en itinerarios reales</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <img src="/logo.svg" alt="InstaTrip" className="w-8 h-8 sm:w-10 sm:h-10" />
+              <div>
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  InstaTrip
+                </h1>
+                <p className="text-xs text-gray-600 hidden sm:block">
+                  Hola, {user?.name || 'viajero'} 👋
+                </p>
+              </div>
             </div>
+            <button
+              onClick={onLogout}
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
+              Cerrar sesión
+            </button>
           </div>
         </div>
       </header>
