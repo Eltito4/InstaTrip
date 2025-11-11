@@ -7,11 +7,8 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
 
 export default function LandingScreen({ navigation }) {
   const [showAuth, setShowAuth] = useState(false);
@@ -27,7 +24,6 @@ export default function LandingScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="dark" />
       <LinearGradient
         colors={['#F3E8FF', '#FCE7F3', '#DBEAFE']}
         style={styles.gradient}
@@ -169,14 +165,9 @@ export default function LandingScreen({ navigation }) {
         {/* Auth Modal */}
         <Modal
           visible={showAuth}
-          animationType="slide"
-          transparent={true}
           onRequestClose={() => setShowAuth(false)}
         >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.modalContainer}
-          >
+          <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <TouchableOpacity
                 style={styles.modalClose}
@@ -214,9 +205,6 @@ export default function LandingScreen({ navigation }) {
                     onChangeText={setEmail}
                     placeholder="tu@email.com"
                     placeholderTextColor="#9CA3AF"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
                   />
                 </View>
 
@@ -257,7 +245,7 @@ export default function LandingScreen({ navigation }) {
                 </Text>
               </TouchableOpacity>
             </View>
-          </KeyboardAvoidingView>
+          </View>
         </Modal>
       </LinearGradient>
     </View>

@@ -10,7 +10,6 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
 
 export default function HomeScreen({ route, navigation }) {
   const { user } = route.params || {};
@@ -47,7 +46,7 @@ export default function HomeScreen({ route, navigation }) {
       'Cerrar sesión',
       '¿Estás seguro que quieres cerrar sesión?',
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Cancelar' },
         { text: 'Cerrar sesión', onPress: () => navigation.navigate('Landing') },
       ]
     );
@@ -55,8 +54,6 @@ export default function HomeScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="dark" />
-
       {/* Header */}
       <LinearGradient
         colors={['#FFFFFF', '#FFFFFF']}
@@ -94,8 +91,6 @@ export default function HomeScreen({ route, navigation }) {
             placeholder="https://www.tiktok.com/@usuario/video/..."
             placeholderTextColor="#9CA3AF"
             editable={!loading}
-            autoCapitalize="none"
-            autoCorrect={false}
           />
 
           {/* Button */}
@@ -103,7 +98,6 @@ export default function HomeScreen({ route, navigation }) {
             style={[styles.analyzeButton, loading && styles.analyzeButtonDisabled]}
             onPress={handleAnalyze}
             disabled={loading}
-            activeOpacity={0.8}
           >
             <LinearGradient
               colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#6366F1', '#8B5CF6']}
