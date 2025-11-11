@@ -7,6 +7,7 @@ import HomeScreen from './src/screens/HomeScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  console.log('=== APP INICIANDO ===');
   return (
     <NavigationContainer>
       <Stack.Navigator

@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function HomeScreen({ route, navigation }) {
+  console.log('>>> HomeScreen RENDER START');
   const { user } = route.params || {};
   const [videoUrl, setVideoUrl] = useState('');
   const [loading, setLoading] = useState(false);

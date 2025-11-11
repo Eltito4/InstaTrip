@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function LandingScreen({ navigation }) {
+  console.log('>>> LandingScreen RENDER START');
   const [showAuth, setShowAuth] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -22,8 +23,10 @@ export default function LandingScreen({ navigation }) {
     navigation.navigate('Home', { user });
   };
 
+  console.log('>>> Rendering View Container');
   return (
     <View style={styles.container}>
+      {console.log('>>> Rendering LinearGradient')}
       <LinearGradient
         colors={['#F3E8FF', '#FCE7F3', '#DBEAFE']}
         style={styles.gradient}
@@ -162,13 +165,16 @@ export default function LandingScreen({ navigation }) {
           </View>
         </ScrollView>
 
+        {console.log('>>> Antes de renderizar Modal')}
         {/* Auth Modal */}
         <Modal
           visible={showAuth}
           onRequestClose={() => setShowAuth(false)}
         >
+          {console.log('>>> Dentro del Modal')}
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
+              {console.log('>>> Renderizando contenido del Modal')}
               <TouchableOpacity
                 style={styles.modalClose}
                 onPress={() => setShowAuth(false)}
@@ -183,10 +189,12 @@ export default function LandingScreen({ navigation }) {
                 {isLogin ? 'Inicia sesión para continuar' : 'Crea tu cuenta en segundos'}
               </Text>
 
+              {console.log('>>> Antes de renderizar formulario')}
               <View style={styles.form}>
                 {!isLogin && (
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>Nombre</Text>
+                    {console.log('>>> Renderizando TextInput NOMBRE')}
                     <TextInput
                       style={styles.input}
                       value={name}
@@ -199,6 +207,7 @@ export default function LandingScreen({ navigation }) {
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Email</Text>
+                  {console.log('>>> Renderizando TextInput EMAIL')}
                   <TextInput
                     style={styles.input}
                     value={email}
@@ -210,6 +219,7 @@ export default function LandingScreen({ navigation }) {
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>Contraseña</Text>
+                  {console.log('>>> Renderizando TextInput PASSWORD con secureTextEntry=true')}
                   <TextInput
                     style={styles.input}
                     value={password}
@@ -220,10 +230,12 @@ export default function LandingScreen({ navigation }) {
                   />
                 </View>
 
+                {console.log('>>> Antes de renderizar botón Submit')}
                 <TouchableOpacity
                   style={styles.submitButton}
                   onPress={handleSubmit}
                 >
+                  {console.log('>>> Renderizando LinearGradient Submit')}
                   <LinearGradient
                     colors={['#A855F7', '#EC4899']}
                     style={styles.submitGradient}
