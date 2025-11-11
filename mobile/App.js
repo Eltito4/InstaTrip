@@ -1,17 +1,14 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import TestScreen from './src/screens/TestScreen';
-
-const Stack = createStackNavigator();
+import React, { useState } from 'react';
+import SimpleLanding from './src/screens/SimpleLanding';
+import SimpleHome from './src/screens/SimpleHome';
 
 export default function App() {
-  console.log('=== TEST CON STACK COMPATIBLE FABRIC ===');
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Test" component={TestScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  console.log('=== APP SIN REACT NAVIGATION ===');
+  const [user, setUser] = useState(null);
+
+  if (!user) {
+    return <SimpleLanding onLogin={setUser} />;
+  }
+
+  return <SimpleHome user={user} onLogout={() => setUser(null)} />;
 }
