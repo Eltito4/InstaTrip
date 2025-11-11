@@ -412,7 +412,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 40,
     borderRadius: 24,
-    overflow: 'hidden',
   },
   finalCTAGradient: {
     padding: 40,
