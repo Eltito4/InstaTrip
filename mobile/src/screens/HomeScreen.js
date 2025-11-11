@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#7C3AED',
   },
   welcomeText: {
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 14,
     color: '#6B7280',
-    fontWeight: '500',
+    fontWeight: 500,
   },
   content: {
     flex: 1,
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
     marginBottom: 8,
   },
@@ -280,14 +280,14 @@ const styles = StyleSheet.create({
   analyzeText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   platforms: {
     
   },
   platformsTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#6B7280',
     marginBottom: 4,
   },
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   },
   howTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
     textAlign: 'center',
     marginBottom: 24,
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#111827',
   },
   stepText: {

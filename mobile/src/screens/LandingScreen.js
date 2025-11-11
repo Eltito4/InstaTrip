@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#7C3AED',
   },
   loginButton: {
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: 'white',
-    fontWeight: '600',
+    fontWeight: 600,
   },
   hero: {
     paddingHorizontal: 20,
@@ -316,11 +316,11 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#7C3AED',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: 500,
   },
   heroTitle: {
     fontSize: 42,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
     marginBottom: 16,
     lineHeight: 48,
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   ctaText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 700,
     textAlign: 'center',
   },
   stats: {
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
   },
   statLabel: {
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   },
   featuresTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
     textAlign: 'center',
     marginBottom: 40,
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
     marginBottom: 8,
   },
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   finalCTATitle: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: 'white',
     textAlign: 'center',
     marginBottom: 16,
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   finalCTAButtonText: {
     color: '#7C3AED',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 700,
     textAlign: 'center',
   },
   // Modal styles
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
     textAlign: 'center',
     marginBottom: 8,
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: 500,
     color: '#374151',
   },
   input: {
@@ -508,13 +508,13 @@ const styles = StyleSheet.create({
   submitText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     textAlign: 'center',
   },
   toggleText: {
     color: '#7C3AED',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: 500,
     textAlign: 'center',
     marginTop: 16,
   },
