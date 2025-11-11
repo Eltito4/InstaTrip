@@ -55,7 +55,7 @@ export default function HomeScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar />
+      <StatusBar style="dark" />
 
       {/* Header */}
       <LinearGradient
@@ -94,6 +94,8 @@ export default function HomeScreen({ route, navigation }) {
             placeholder="https://www.tiktok.com/@usuario/video/..."
             placeholderTextColor="#9CA3AF"
             editable={!loading}
+            autoCapitalize="none"
+            autoCorrect={false}
           />
 
           {/* Button */}
@@ -101,6 +103,7 @@ export default function HomeScreen({ route, navigation }) {
             style={[styles.analyzeButton, loading && styles.analyzeButtonDisabled]}
             onPress={handleAnalyze}
             disabled={loading}
+            activeOpacity={0.8}
           >
             <LinearGradient
               colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#6366F1', '#8B5CF6']}
